@@ -1,0 +1,400 @@
+.android-app .am-local-setup {
+  min-height: 100dvh;
+  background: #302e2b;
+  padding-bottom: 86px;
+}
+.android-app .am-local-description {
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  color: #aaa;
+  text-align: center;
+  margin: 20px 0 22px;
+  font-weight: 700;
+}
+.android-app .am-local-fields {
+  position: relative;
+  background: #23211f;
+}
+.android-app .am-local-field {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 12px;
+  border-bottom: 1px solid #15141388;
+  width: 100%;
+  font-size: 18px;
+  color: #b4b3b2;
+  text-align: left;
+}
+.android-app .am-local-field input:not([type="checkbox"]),
+.android-app .am-local-field select {
+  border: 0;
+  background: transparent;
+  outline: 0;
+  color: white;
+  text-align: right;
+  font: inherit;
+  max-width: 68%;
+  min-width: 0;
+  padding: 4px 0;
+}
+.android-app .am-local-field b {
+  font-weight: 400;
+  color: #fff;
+}
+.android-app .am-local-field select option {
+  background: #302e2b;
+}
+.android-app .am-local-field:has(input:not([type="checkbox"])) {
+  min-height: 54px;
+}
+.android-app .am-local-swap {
+  position: absolute;
+  top: 45px;
+  left: calc(50% - 16px);
+  background: #23211f;
+  width: 32px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  color: #b4b3b2;
+}
+.android-app .am-local-swap svg {
+  width: 26px;
+  height: 26px;
+}
+.android-app .am-switch {
+  appearance: none;
+  width: 34px;
+  min-width: 34px;
+  height: 19px;
+  background: #666;
+  border-radius: 20px;
+  position: relative;
+  margin: 0 3px;
+  cursor: pointer;
+}
+.android-app .am-switch:before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #bfbfbf;
+  border-radius: 50%;
+  left: -1px;
+  top: -0.5px;
+  box-shadow: 0 2px 3px #0005;
+}
+.android-app .am-switch:checked {
+  background: #526637;
+}
+.android-app .am-switch:checked:before {
+  left: 15px;
+  background: #86aa4b;
+}
+.android-app .am-setup-play-dock {
+  position: fixed;
+  bottom: 12px;
+  left: 16px;
+  right: 16px;
+  display: grid;
+  gap: 12px;
+}
+.android-app .am-local-setup.has-session { padding-bottom: 148px; }
+.android-app .am-setup-play-dock .am-surface {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-weight: 700;
+  text-align: center;
+}
+.android-app .am-setup-play-dock .am-primary {
+  width: 100%;
+}
+.android-app .am-local-fen {
+  display: block;
+  padding: 14px 16px;
+  color: #aaa;
+}
+.android-app .am-local-fen textarea {
+  display: block;
+  width: 100%;
+  height: 80px;
+  margin-top: 8px;
+  background: #171614;
+  color: #eee;
+  border: 1px solid #555;
+  padding: 8px;
+  font-size: 14px;
+}
+.android-app .am-play-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #000b;
+  z-index: 180;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.android-app .am-play-dialog {
+  width: min(100%, 430px);
+  max-height: 92dvh;
+  overflow: auto;
+  background: #302e2b;
+  border: 1px solid #464440;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 12px 35px #0005;
+}
+.android-app .am-play-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.android-app .am-play-dialog h2 {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  font-size: 20px;
+}
+.android-app .am-play-dialog header button {
+  color: #aaa;
+  display: grid;
+  place-items: center;
+  padding: 5px;
+}
+.android-app .am-time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.android-app .am-time-grid button {
+  background: #45433f;
+  border-radius: 6px;
+  padding: 16px 5px;
+  color: #ddd;
+  font-size: 16px;
+}
+.android-app .am-time-grid .selected {
+  background: #81b64c;
+  color: #fff;
+}
+.android-app .am-bots-screen {
+  background: #23211f;
+  min-height: 100dvh;
+  padding-bottom: 190px;
+}
+.android-app .am-bot-profile {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-rows: minmax(90px, auto) auto;
+  align-items: end;
+  padding: 12px 12px 14px;
+  min-height: 146px;
+}
+.android-app .am-bot-profile > img {
+  height: 84px;
+  width: 80px;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.android-app .am-bot-profile > div {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 12px;
+}
+.android-app .am-bot-profile h1 {
+  font:
+    800 23px system-ui,
+    sans-serif;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.android-app .am-bot-profile h1 small {
+  font:
+    400 16px system-ui,
+    sans-serif;
+  color: #bcbcbc;
+}
+.android-app .am-bot-profile p {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  border-radius: 10px;
+  margin: 0;
+  padding: 12px 15px;
+  color: #262525;
+  background: #fff;
+  font: 500 15px/1.35 system-ui, sans-serif;
+}
+.android-app .am-bot-profile p::before {
+  content: "";
+  position: absolute;
+  bottom: 16px;
+  right: calc(100% - 2px);
+  width: 15px;
+  height: 18px;
+  background: #fff;
+  clip-path: polygon(0 60%, 50% 45%, 100% 0, 100% 100%, 54% 100%);
+}
+.android-app .am-mobile-bot-catalog {
+  padding: 0 12px;
+}
+.android-app .am-bot-group {
+  margin: 8px 0 14px;
+}
+.android-app .am-bot-group h2 {
+  font:
+    700 15px system-ui,
+    sans-serif;
+  margin: 0 0 5px;
+  color: #aaa;
+}
+.android-app .am-bot-group h2 span {
+  color: #777;
+}
+.android-app .am-bot-group > div {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.android-app .am-bot-group button {
+  background: #1f1d1b;
+  border-radius: 3px;
+  aspect-ratio: 1;
+  min-width: 0;
+  position: relative;
+  border: 2px solid transparent;
+  padding: 0;
+}
+.android-app .am-bot-group button.selected {
+  border-color: #81b64c;
+  background: #363330;
+}
+.android-app .am-bot-group img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.android-app .am-bot-crown {
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  color: #ffda47;
+  font-size: 20px;
+  text-shadow: 0 1px #836200;
+}
+.android-app .am-bot-start-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  background: linear-gradient(#302e2bde, #302e2b);
+}
+.android-app .am-bot-start-dock > button {
+  width: 100%;
+  font-family: system-ui, sans-serif;
+  font-size: 23px;
+  min-height: 56px;
+}
+.android-app .am-bot-start-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(136px, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+.android-app .am-bot-dock-options {
+  width: 100%;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 26px 1fr 21px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  font-weight: 800;
+  font-size: 17px;
+  text-align: left;
+}
+.android-app .am-bot-dock-options .am-color-icon {
+  width: 26px;
+  height: 26px;
+}
+.android-app .am-bot-dock-options svg {
+  width: 19px;
+  height: 19px;
+  opacity: .7;
+}
+.android-app .am-bot-options > p {
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+}
+.android-app .am-side-choices {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+.android-app .am-side-choices button {
+  flex: 1;
+  height: 40px;
+  min-width: 36px;
+  max-width: 48px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  border: 1px solid #d2d0ce50;
+  background: #deddda;
+  color: #76716e;
+}
+.android-app .am-side-choices button[data-bot-side="random"] {
+  background: linear-gradient(to right, #deddda 50%, #302e2b 50%);
+  color: #a6a5a2;
+}
+.android-app .am-side-choices button[data-bot-side="b"] {
+  background: #2c2a27;
+  color: #ccc9c6;
+}
+.android-app .am-side-choices button[aria-pressed="true"] {
+  outline: 2px solid #81b64c;
+  outline-offset: 2px;
+}
+.android-app .am-side-choices span {
+  width: 32px;
+  height: 32px;
+  background: currentColor;
+  mask: center/contain no-repeat;
+}
+.android-app .am-engine-explanation {
+  font-size: 12px !important;
+  line-height: 1.5;
+}
+@media (max-width: 340px) {
+  .android-app .am-bot-start-controls { gap: 10px; }
+  .android-app .am-bot-dock-options { gap: 6px; padding-inline: 8px; }
+}
+.android-app .am-local-rules-note{padding:12px 16px;color:#aaa;font-size:13px;line-height:1.5}
+.android-app .am-side-choices img,
+.android-app .am-side-choices svg {
+  width: 26px;
+  height: 26px;
+}
+.android-app .am-engine-strength {
+  gap: 12px;
+  justify-content: space-between;
+}
+.android-app .am-engine-strength input {
+  width: min(52%, 240px);
+  accent-color: #81b64c;
+}

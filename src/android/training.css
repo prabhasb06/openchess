@@ -1,0 +1,659 @@
+.android-app .am-puzzle-landing,
+.android-app .am-learn-landing {
+  position: relative;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--am-tab-height) + 88px);
+  overflow: hidden;
+}
+.android-app .am-puzzle-landing {
+  background: #2b502b;
+}
+.android-app .am-learn-landing {
+  background: #25231f;
+}
+.android-app .am-puzzle-landing > .am-header,
+.android-app .am-learn-landing > .am-header {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(#302e2bde, #302e2b90);
+  backdrop-filter: blur(12px);
+}
+.android-app .am-training-coach {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 12px;
+  min-height: 94px;
+}
+.android-app .am-training-coach > img {
+  width: 78px;
+  height: 82px;
+  object-fit: contain;
+  object-position: bottom;
+  flex-shrink: 0;
+  margin-left: -4px;
+}
+.android-app .am-training-coach > div {
+  position: relative;
+  background: #fff;
+  border-radius: 11px;
+  color: #302e2b;
+  padding: 15px 16px;
+  font:
+    400 15px/1.35 system-ui,
+    Arial,
+    sans-serif;
+  flex: 1;
+  min-width: 0;
+  margin-left: -1px;
+  margin-bottom: 1px;
+}
+.android-app .am-training-coach > div:before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  bottom: 14px;
+  width: 17px;
+  height: 15px;
+  background: #fff;
+  clip-path: polygon(100% 0, 100% 100%, 0 72%);
+}
+.android-app .am-mobile-puzzle-path {
+  position: relative;
+  min-height: 1060px;
+  background: repeating-conic-gradient(#2d522c 0 25%, #31592e 0 50%) 0 0/150px
+    150px;
+}
+.android-app .am-native-terrain {
+  background: radial-gradient(ellipse at top, #354b35, transparent 72%);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 20px;
+  height: 225px;
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+.android-app .am-puzzle-nodes {
+  position: relative;
+  margin-top: 20px;
+  height: 980px;
+}
+.android-app .am-puzzle-node {
+  position: absolute;
+  left: var(--node-x);
+  top: var(--node-y);
+  transform: translateX(-50%);
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  background: #455444;
+  border: 1px solid #788e6e;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font:
+    800 24px/1 system-ui,
+    Arial,
+    sans-serif;
+  color: white;
+}
+.android-app .am-puzzle-node.is-solved {
+  background: #45633d;
+  color: #e2efcf;
+}
+.android-app .am-puzzle-node > svg {
+  width: 36px;
+  height: 36px;
+  stroke-width: 5;
+  filter: drop-shadow(0 1px #638a3a);
+}
+.android-app .am-path-pawn {
+  position: absolute;
+  left: calc(78% - 27px);
+  top: -29px;
+  width: 55px;
+  height: 55px;
+  pointer-events: none;
+  z-index: 2;
+}
+.android-app .am-puzzle-path-progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--am-tab-height) + 84px);
+  z-index: 7;
+  padding: 16px 12px;
+  background: linear-gradient(#2d522c00, #2d522cf0 40%);
+  pointer-events: none;
+}
+.android-app .am-puzzle-path-progress > strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font:
+    800 22px/1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-puzzle-path-progress > strong svg {
+  width: 19px;
+  height: 24px;
+  fill: #fc8029;
+  stroke: #fc8029;
+}
+.android-app .am-puzzle-path-progress > div {
+  height: 16px;
+  background: #ffffff18;
+  border-radius: 20px;
+  margin-right: 40px;
+}
+.android-app .am-puzzle-path-progress i {
+  display: block;
+  height: 100%;
+  min-width: 14px;
+  border-radius: 20px;
+  background: #fb7b2a;
+  box-shadow: 0 0 0 5px #bf834b55;
+}
+.android-app .am-training-dock {
+  position: fixed;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  bottom: var(--am-tab-height);
+  display: flex;
+  gap: 8px;
+  padding: 16px 12px 12px;
+  background: #2d402bf5;
+  backdrop-filter: blur(14px);
+}
+.android-app .am-learn-landing .am-training-dock {
+  background: #522015f0;
+}
+.android-app .am-training-dock .am-primary {
+  flex: 1;
+  min-width: 0;
+  font-size: 24px;
+}
+.android-app .am-training-menu-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 56px;
+  height: 56px;
+  border-radius: 11px;
+  background: #ffffff13;
+  box-shadow:
+    inset 0 1px #ffffff25,
+    0 3px 4px #0003;
+}
+.android-app .am-training-menu-button svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 3;
+}
+.android-app .am-training-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  background: #000a;
+}
+.android-app .am-training-sheet {
+  width: 100%;
+  max-height: 85dvh;
+  overflow: auto;
+  border-radius: 12px 12px 0 0;
+  padding: 14px 12px 24px;
+  background: #302d29;
+  box-shadow: 0 -4px 24px #0005;
+  outline: none;
+}
+.android-app .am-training-sheet > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.android-app .am-training-sheet h2 {
+  font:
+    800 22px/1.2 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-training-sheet > header > button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: #aaa6a1;
+}
+.android-app .am-training-sheet > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  min-height: 54px;
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  border-radius: 8px;
+  margin-top: 7px;
+  background: linear-gradient(#3b3935, #322f2b);
+  box-shadow: inset 0 1px #ffffff12;
+  font:
+    700 17px/1.2 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-training-sheet > button span {
+  font:
+    400 12px/1.3 system-ui,
+    Arial,
+    sans-serif;
+  color: #bbb6af;
+}
+.android-app .am-training-sheet > button:has(.am-color-icon) {
+  justify-content: flex-start;
+}
+.android-app .am-training-sheet > button.am-primary {
+  justify-content: center;
+  background: linear-gradient(#83b94d, #629544);
+  text-align: center;
+  font-family: system-ui, Arial, sans-serif;
+}
+.android-app .am-custom-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+.android-app .am-custom-label > select {
+  flex: 1;
+  min-width: 0;
+  background: #24221f;
+  color: #fff;
+  padding: 10px;
+  border: 1px solid #68615b;
+  border-radius: 6px;
+  font: inherit;
+}
+.android-app .am-training-sheet > p {
+  font-size: 13px;
+  color: #bcb6af;
+  padding: 5px 12px;
+}
+.android-app .am-training-exercise {
+  min-height: 100dvh;
+  background: linear-gradient(#23211f, #302d2a);
+  display: flex;
+  flex-direction: column;
+}
+.android-app .am-training-exercise > .chessboard {
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  border-radius: 0;
+}
+.android-app .am-training-exercise > .am-training-coach {
+  min-height: 132px;
+  align-items: flex-end;
+  margin-top: auto;
+}
+.android-app .am-training-exercise > .am-training-coach > img {
+  height: 88px;
+  width: 80px;
+}
+.android-app .am-training-feedback {
+  padding: 18px 16px 8px;
+  min-height: 110px;
+}
+.android-app .am-training-feedback h2 {
+  font:
+    800 20px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  margin-bottom: 7px;
+}
+.android-app .am-training-feedback p {
+  font:
+    400 14px/1.4 system-ui,
+    Arial,
+    sans-serif;
+  color: #c9c3bc;
+}
+.android-app .am-training-exercise-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 12px 20px;
+}
+.android-app .am-training-exercise-actions > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font:
+    700 14px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  padding: 10px;
+  color: #bbb7b1;
+  min-height: 44px;
+}
+.android-app .am-training-exercise-actions > .am-primary {
+  width: 100%;
+  font:
+    800 22px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  color: #fff;
+  min-height: 56px;
+}
+.android-app .am-training-exercise-actions > button > svg {
+  width: 23px;
+  height: 23px;
+}
+.android-app .am-training-exercise-actions .am-training-secondary {
+  width: 100%;
+  padding: 8px;
+}
+.android-app .am-rush-score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  font:
+    700 18px/1 system-ui,
+    Arial,
+    sans-serif;
+  background: #ffffff06;
+}
+.android-app .am-rush-score > strong {
+  font:
+    800 28px/1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-rush-score > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.android-app .am-rush-score svg {
+  width: 20px;
+  height: 20px;
+  color: #69635d;
+}
+.android-app .am-rush-score svg.lost {
+  color: #e74e3b;
+}
+.android-app .am-mobile-lesson-path {
+  position: relative;
+  min-height: 1150px;
+  background: repeating-conic-gradient(#39291e 0 25%, #25231f 0 50%) 50% 0/190px
+    190px;
+}
+.android-app .am-mobile-lesson-path > .am-training-coach {
+  margin-bottom: 0;
+}
+.android-app .am-mobile-lesson-nodes {
+  position: relative;
+  height: 1000px;
+  margin-top: 15px;
+  overflow: hidden;
+}
+.android-app .am-mobile-lesson-node {
+  position: absolute;
+  left: var(--node-x);
+  top: var(--node-y);
+  transform: translateX(-50%);
+  width: 120px;
+  height: 100px;
+  z-index: 2;
+  padding: 0;
+}
+.android-app .am-mobile-lesson-node:before {
+  content: "";
+  position: absolute;
+  inset: 9px 5px;
+  background: #7a3a20;
+  border-radius: 20px;
+  transform: rotate(-45deg) skew(12deg, 12deg);
+  box-shadow: -7px 7px 0 #51291b;
+}
+.android-app .am-mobile-lesson-node > span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 85px;
+  opacity: 0.48;
+}
+.android-app .am-mobile-lesson-node > span > img {
+  height: 42px;
+  width: 42px;
+  object-fit: contain;
+  filter: sepia(0.8);
+  opacity: 0.65;
+}
+.android-app .am-mobile-lesson-node > span > svg {
+  width: 35px;
+  height: 35px;
+  stroke-width: 4;
+}
+.android-app .am-mobile-lesson-node.is-next:before {
+  background: #ffa451;
+  box-shadow:
+    -7px 7px #bc622f,
+    0 0 30px #ffab5a66;
+}
+.android-app .am-mobile-lesson-node.is-next > span,
+.android-app .am-mobile-lesson-node.is-complete > span {
+  opacity: 1;
+}
+.android-app .am-mobile-lesson-node.is-next > strong {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #302e2b;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font:
+    800 18px/1 system-ui,
+    Arial,
+    sans-serif;
+  z-index: 3;
+}
+.android-app .am-mobile-lesson-node.is-next > strong:after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: calc(50% - 7px);
+  border: 7px solid transparent;
+  border-bottom: 0;
+  border-top-color: #fff;
+}
+.android-app .am-mobile-lesson-node.is-complete:before {
+  background: #527d3d;
+  box-shadow: -7px 7px #34552b;
+}
+.android-app .am-path-chess-piece {
+  position: absolute;
+  width: 58px;
+  height: 110px;
+  object-fit: contain;
+  opacity: 0.75;
+  z-index: 1;
+  pointer-events: none;
+}
+.android-app .am-local-puzzle-difficulty {
+  display: block;
+  margin-bottom: 7px;
+  color: #aaa49c;
+  font:
+    400 12px/1.3 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-puzzle-path-progress > strong > small {
+  font:
+    700 12px/1.3 system-ui,
+    Arial,
+    sans-serif;
+  color: #c4d1bd;
+}
+.android-app .am-learn-path-label {
+  position: fixed;
+  z-index: 10;
+  bottom: calc(var(--am-tab-height) + 84px);
+  left: 0;
+  right: 0;
+  padding: 22px 12px 12px;
+  background: linear-gradient(#59201400, #592014ed);
+  font:
+    800 26px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  pointer-events: none;
+}
+.android-app .am-training-error {
+  padding: 20px;
+  color: #ffb6a0;
+}
+.android-app .am-mobile-lesson-progress {
+  padding: 20px 16px 8px;
+  text-align: center;
+  color: #a9a39b;
+  font:
+    700 13px/1.3 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-mobile-lesson-progress > div {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  margin-top: 14px;
+}
+.android-app .am-mobile-lesson-progress i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #565049;
+}
+.android-app .am-mobile-lesson-progress i.is-complete {
+  background: #81b64c;
+}
+.android-app .am-lesson-complete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 20px;
+  flex: 1;
+}
+.android-app .am-lesson-complete-animation {
+  height: 220px;
+  width: 100%;
+  max-width: 300px;
+}
+.android-app .am-lesson-complete-check {
+  height: 90px;
+  width: 90px;
+  color: #81b64c;
+  stroke-width: 3;
+}
+.android-app .am-lesson-complete h2 {
+  font:
+    800 26px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  margin: 15px 0 10px;
+}
+.android-app .am-lesson-complete p {
+  color: #b6afa6;
+}
+@media (max-height: 650px) {
+  .android-app .am-training-exercise > .am-training-coach {
+    min-height: 95px;
+  }
+  .android-app .am-training-exercise-actions {
+    padding-bottom: 10px;
+  }
+  .android-app .am-training-feedback {
+    padding-top: 12px;
+  }
+}
+
+.android-app .am-mobile-lesson-nodes {
+  overflow: visible;
+  margin-top: 30px;
+}
+
+.android-app .am-mobile-puzzle-path {
+  background: repeating-conic-gradient(from 45deg, #2d522c 0 25%, #31592e 0 50%)
+    0 0/150px 150px;
+}
+.android-app .am-mobile-lesson-path {
+  background: repeating-conic-gradient(from 45deg, #39291e 0 25%, #25231f 0 50%)
+    50% 0/190px 190px;
+}
+.android-app .am-path-chess-piece {
+  width: 48px;
+  height: 100px;
+}
+
+/* Measured Learn content crop on build280100 at384CSS px. Keep these local
+   to the landing screen: exercise coaches use a different native arrangement. */
+.android-app .am-learn-landing > .am-header {
+  height: 58px;
+}
+.android-app .am-learn-landing {
+  height: 100dvh;
+  padding-bottom: 0;
+}
+.android-app .am-mobile-lesson-path {
+  height: calc(100dvh - 58px - var(--am-tab-height) - 84px);
+  min-height: 0;
+}
+.android-app .am-learn-path-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  scroll-padding-top: 108px;
+  scroll-padding-bottom: 48px;
+}
+.android-app .am-learn-path-scroll > .am-mobile-lesson-nodes {
+  margin-top: 134px;
+}
+.android-app .am-mobile-lesson-path > .am-training-coach {
+  position: absolute;
+  inset: 0 0 auto;
+  pointer-events: none;
+  padding-top: 16px;
+}
+.android-app .am-mobile-lesson-path > .am-training-coach > img {
+  margin-left: 0;
+  height: 80px;
+}
+.android-app .am-mobile-lesson-path > .am-training-coach > div {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}

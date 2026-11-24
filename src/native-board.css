@@ -1,0 +1,52 @@
+/* Opt-in Android behavior from the installed app's phase captures. Desktop
+   selection, drag transforms and animation timing remain independently scoped. */
+.chessboard.native-mobile .square.selected:after {
+  border-radius: 25%;
+  background: #ffff55;
+  opacity: 1;
+}
+.chessboard.native-mobile .square.drop-target:before {
+  border: 0;
+}
+.chessboard.native-mobile .legal-dot {
+  left: 30%;
+  top: 30%;
+  width: 40%;
+  height: 40%;
+}
+.chessboard.native-mobile .piece,
+.chessboard.native-mobile .piece.dragging {
+  filter: none;
+}
+.chessboard.native-mobile.rotate-piece-faces .piece,
+.chessboard.native-mobile.rotate-piece-faces .captured-ghost {
+  transform: rotate(180deg);
+}
+.native-touch-halo {
+  position: absolute;
+  width: 25%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #0003;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+.native-touch-halo:after {
+  content: "";
+  position: absolute;
+  width: 20%;
+  height: 20%;
+  left: 40%;
+  top: 40%;
+  border-radius: 50%;
+  background: #0002;
+}
+.chessboard.native-mobile .rank {
+  left: 3px;
+  top: 3px;
+}
+.chessboard.native-mobile .file {
+  right: 3px;
+  bottom: 2px;
+}

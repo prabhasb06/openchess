@@ -1,0 +1,9 @@
+{
+  "version": "18",
+  "abi": "arm64-v8a",
+  "officialRelease": "https://github.com/official-stockfish/Stockfish/releases/download/sf_18/stockfish-android-armv8.tar",
+  "archiveSha256": "e2eca54b0e3189ec7de338133c2b34fa8f5cdec3d2473519b414a5cb6815e768",
+  "binarySha256": "cc3b3b74466b6d85cdc0f8cfdad4111c6a44bd0698f4eab96fea7b359a54d3d4",
+  "source": "https://github.com/official-stockfish/Stockfish/tree/sf_18",
+  "license": "GPL-3.0"
+}

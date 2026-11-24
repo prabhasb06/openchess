@@ -1,0 +1,176 @@
+.android-app .am-bot-result-cover {
+  align-items: flex-start;
+  padding-top: clamp(12px, 5.4dvh, 40px);
+}
+.android-app .am-bot-result {
+  color: #fff;
+  background: #252321;
+  border-color: #44413e;
+  max-height: calc(100dvh - clamp(12px, 5.4dvh, 40px) - 12px);
+  overscroll-behavior: contain;
+}
+.android-app .am-bot-result > .am-bot-result-heading {
+  display: grid;
+  grid-template-columns: 42px 50px minmax(0, 1fr) 50px 42px;
+  align-items: start;
+  min-height: 77px;
+  padding: 8px 2px 12px;
+  text-align: center;
+  background: #2f2c29;
+}
+.android-app .am-bot-result > .am-bot-result-heading > button {
+  width: 100%;
+  height: 36px;
+  color: #aaa8a4;
+}
+.android-app .am-bot-result-heading button svg,
+.android-app .am-bot-result-heading button span {
+  width: 22px;
+  height: 22px;
+}
+.android-app .am-bot-result-heading button:last-child {
+  grid-column: 5;
+}
+.android-app .am-bot-result-heading button:last-child svg {
+  width: 18px;
+}
+.android-app .am-bot-result-heading button span {
+  background: currentColor;
+  mask: center/contain no-repeat;
+}
+.android-app .am-bot-result-heading h1 {
+  margin: 7px 0 1px;
+  font: 900 22px/1.16 system-ui, sans-serif;
+}
+.android-app .am-bot-result-heading p {
+  margin: 2px 0 0;
+  font: 700 14px/1.2 system-ui, sans-serif;
+  color: #e1e0de;
+}
+.android-app .am-bot-result-content {
+  padding: 38px 16px 16px;
+}
+.android-app .am-bot-result-coach {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: end;
+}
+.android-app .am-bot-result-coach img {
+  width: 80px;
+  height: 82px;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.android-app .am-bot-result-coach p {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 71px;
+  margin: 0;
+  padding: 12px 15px;
+  border-radius: 10px;
+  color: #282724;
+  background: #fff;
+  font: 500 15px/1.35 system-ui, sans-serif;
+}
+.android-app .am-bot-result-coach p::before {
+  content: "";
+  position: absolute;
+  bottom: 14px;
+  right: calc(100% - 2px);
+  width: 18px;
+  height: 16px;
+  border-radius: 0 0 0 100%;
+  background: #fff;
+  clip-path: polygon(0 65%, 55% 47%, 100% 0, 100% 100%, 60% 100%);
+}
+.android-app .am-bot-result-note {
+  margin: 8px 0 0;
+  color: #cfccc7;
+  font-size: 13px;
+}
+.android-app .am-bot-result-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  text-align: center;
+  margin: 16px 0;
+}
+.android-app .am-bot-result-counts b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font: 900 22px/1 system-ui, sans-serif;
+}
+.android-app .am-bot-result-counts img {
+  width: 25px;
+  height: 25px;
+}
+.android-app .am-bot-result-counts span {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.android-app .am-bot-result button.am-bot-result-review {
+  width: 100%;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(#85b74e, #609a43);
+  box-shadow: inset 0 -2px #0003;
+  border-radius: 10px;
+  color: #fff;
+  font: 900 23px/1.1 system-ui, sans-serif;
+}
+.android-app .am-bot-result-review span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: white;
+  color: #6c9e44;
+  font: 700 20px/1 sans-serif;
+}
+.android-app .am-bot-result-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.android-app .am-bot-result-actions button {
+  min-height: 48px;
+  border-radius: 9px;
+  background: linear-gradient(#3b3935, #33312d);
+  box-shadow: 0 1px 4px #0004;
+  color: #e4e3e1;
+  font: 800 17px/1.1 system-ui, sans-serif;
+}
+.android-app .am-bot-resign {
+  max-width: min(332px, calc(100% - 24px));
+  border: 0;
+  border-radius: 24px;
+  background: #2e2b29;
+  color: #fff;
+}
+.android-app .am-bot-resign p {
+  padding: 20px 24px 14px;
+  margin: 0;
+  font-size: 16px;
+}
+.android-app .am-bot-resign .am-game-confirm-actions {
+  gap: 4px;
+  padding: 6px 16px 8px;
+}
+.android-app .am-bot-resign .am-game-confirm-actions button {
+  min-height: 40px;
+  padding: 8px 7px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: #9cc170;
+}

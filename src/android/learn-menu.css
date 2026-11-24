@@ -1,0 +1,83 @@
+.android-app[data-mobile-route="lessons"] {
+  --am-tab-height: 56px;
+}
+.android-app .am-learn-landing ~ .am-tabs {
+  background: #512017;
+}
+.android-app .am-learn-landing.options-open ~ .am-tabs,
+.android-app .am-learn-landing.options-open .am-learn-options-dock {
+  background: #231714;
+}
+.android-app .am-learn-options {
+  position: fixed;
+  inset: 58px 0 var(--am-tab-height);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.android-app .am-learn-options-actions {
+  padding: 16px 12px 0;
+  background: #24211e;
+  border-radius: 12px 12px 0 0;
+  display: grid;
+  gap: 8px;
+}
+.android-app .am-learn-options-actions > button {
+  width: 100%;
+  height: 56px;
+  border: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(#35322f, #292622);
+  box-shadow:
+    inset 0 1px 1px #ffffff23,
+    0 3px 4px #0003;
+  color: #dddcd9;
+  font:
+    800 19px/1.15 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-learn-options-actions .am-color-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+.android-app .am-learn-options .am-learn-options-dock {
+  position: relative;
+  inset: auto;
+  flex-shrink: 0;
+  background: #2c1e17;
+}
+.android-app .am-learn-options-dock .am-training-menu-button svg {
+  width: 32px;
+  height: 32px;
+}
+.android-app .am-learn-landing.options-open .am-mobile-lesson-path:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000b;
+  z-index: 2;
+  pointer-events: none;
+}
+.android-app .am-learn-landing.options-open > .am-training-dock {
+  visibility: hidden;
+}
+@media (max-height: 520px) {
+  .android-app .am-learn-options-actions {
+    padding-top: 8px;
+    gap: 4px;
+  }
+  .android-app .am-learn-options-actions > button {
+    height: 44px;
+  }
+  .android-app .am-learn-options .am-training-dock {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}

@@ -1,0 +1,563 @@
+.android-app .am-review {
+  background: #302e2b;
+  min-height: 100dvh;
+  padding-bottom: 76px;
+  overflow-anchor: none;
+  color: #bbb;
+  font-family: system-ui, Arial, sans-serif;
+}
+.android-app .am-review button {
+  cursor: pointer;
+}
+.android-app .am-review button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.android-app .am-review-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  background: #23211f;
+  color: #bbb;
+}
+.android-app .am-review-header h1 {
+  font:
+    700 20px system-ui,
+    Arial,
+    sans-serif;
+  color: #fff;
+  margin: 0 auto 0 2px;
+}
+.android-app .am-review-header .am-icon-button {
+  width: 36px;
+  height: 44px;
+  padding: 7px;
+  flex: 0 0 36px;
+}
+.android-app .am-review-header svg {
+  width: 24px;
+  height: 24px;
+}
+.android-app .am-review-tabs {
+  display: flex;
+  background: #23211f;
+  height: 42px;
+}
+.android-app .am-review-tabs button {
+  flex: 1;
+  border-bottom: 3px solid transparent;
+  font-weight: bold;
+  color: #aaa;
+}
+.android-app .am-review-tabs .active {
+  color: #fff;
+  border-color: #81b64c;
+}
+.android-app .am-review-import {
+  padding: 28px 16px;
+  text-align: center;
+}
+.android-app .am-review-import h2,
+.android-app .am-review-highlights h2 {
+  font:
+    700 25px system-ui,
+    Arial,
+    sans-serif;
+  color: #fff;
+}
+.android-app .am-review-import p {
+  line-height: 1.5;
+}
+.android-app .am-review-import label {
+  display: block;
+  text-align: left;
+  margin: 24px 0 8px;
+}
+.android-app .am-review-import textarea {
+  display: block;
+  width: 100%;
+  min-height: 170px;
+  resize: vertical;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 12px;
+  background: #23211f;
+  color: #eee;
+  font: 14px/1.5 monospace;
+}
+.android-app .am-review-primary,
+.android-app .am-review-secondary {
+  min-height: 52px;
+  width: 100%;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font:
+    700 20px system-ui,
+    Arial,
+    sans-serif;
+  margin: 14px 0;
+  color: #fff;
+}
+.android-app .am-review-primary {
+  background: linear-gradient(#8cbe4e, #61973e);
+  box-shadow: 0 3px 0 #446b2b;
+}
+.android-app .am-review-secondary {
+  background: linear-gradient(#3d3b38, #302e2b);
+  box-shadow: 0 2px 0 #23211f;
+}
+.android-app .am-review-import progress {
+  width: 100%;
+  height: 14px;
+  accent-color: #81b64c;
+}
+.android-app .am-review-error {
+  background: #fa412d22;
+  padding: 12px;
+  border-radius: 8px;
+  color: #ffb0a6;
+  text-align: left;
+}
+.android-app .am-review-highlights {
+  padding: 14px 16px;
+  text-align: center;
+}
+.android-app .am-review-players {
+  display: flex;
+  gap: 12px;
+}
+.android-app .am-review-players > div {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.android-app .am-review-players span:not(.am-review-dot) {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 85%;
+  font-size: 14px;
+}
+.android-app .am-review-players strong {
+  flex-basis: 100%;
+  background: #3a3835;
+  padding: 12px 5px;
+  font:
+    800 42px system-ui,
+    Arial,
+    sans-serif;
+  color: #fff;
+  border-radius: 5px;
+}
+.android-app .am-review-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.android-app .am-review-dot.w {
+  background: #eee;
+}
+.android-app .am-review-dot.b {
+  background: #171615;
+  border: 1px solid #666;
+}
+.android-app .am-review-estimate {
+  font-size: 12px;
+  margin: 10px 0 16px;
+}
+.android-app .am-review-graph {
+  height: 110px;
+  position: relative;
+  background: #23211f;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.android-app .am-review-graph svg {
+  height: 100%;
+  width: 100%;
+  display: block;
+}
+.android-app .am-review-graph > div {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+.android-app .am-review-graph button {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  padding: 0;
+  border: 0;
+}
+.android-app .am-review-counts {
+  margin: 18px 0;
+}
+.android-app .am-review-counts > div {
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  min-height: 32px;
+}
+.android-app .am-review-counts button {
+  font-weight: bold;
+  color: #eee;
+}
+.android-app .am-review-counts span {
+  font-size: 14px;
+}
+.android-app .am-review-counts + p {
+  font-size: 13px;
+}
+.android-app .am-review-player {
+  height: 43px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px;
+}
+.android-app .am-review-player > span {
+  height: 30px;
+  width: 30px;
+  background: #45433f;
+  display: grid;
+  place-items: center;
+  font-size: 27px;
+}
+.android-app .am-review-player strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+.android-app .am-review-player button,
+.android-app .am-review-player small {
+  margin-left: auto;
+}
+.android-app .am-review-eval {
+  height: 15px;
+  margin: 0 12px 8px;
+  background: #45433f;
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.android-app .am-review-eval > div {
+  height: 100%;
+  background: #eee;
+}
+.android-app .am-review-eval span {
+  position: absolute;
+  right: 5px;
+  top: 0;
+  color: #fff;
+  background: #302e2baa;
+  border-radius: 2px;
+  padding: 0 3px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 15px;
+  text-shadow: none;
+}
+.android-app .am-review > .chessboard {
+  width: 100%;
+  border-radius: 0;
+  margin: 0;
+  max-width: none;
+  box-shadow: none;
+}
+.android-app .am-review-notation {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  background: #262421;
+  gap: 0;
+  padding: 0 5px;
+}
+.android-app .am-review-notation > button {
+  width: 34px;
+  flex: 0 0 34px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+.android-app .am-review-notation > div {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  overflow: auto;
+  scrollbar-width: none;
+  touch-action: pan-y;
+}
+.android-app .am-review-notation > div > button {
+  font-size: 17px;
+  white-space: nowrap;
+  padding: 8px 5px;
+  border-radius: 3px;
+  color: #eee;
+}
+.android-app .am-review-notation > div > button[aria-current="true"] {
+  background: #45433f;
+  box-shadow: 0 2px 0 #999;
+}
+.android-app .am-review-notation button span {
+  font-size: 14px;
+  color: #aaa;
+}
+.android-app .am-review-notation sup {
+  font-weight: bold;
+  margin-left: 2px;
+}
+.android-app .am-review-coach {
+  margin: 12px 12px 0;
+  position: relative;
+  z-index: 1;
+}
+.android-app .am-review-coach > div {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+.android-app .am-review-coach img {
+  width: 70px;
+  max-height: 108px;
+  object-fit: contain;
+  flex: 0 0 70px;
+}
+.android-app .am-review-coach article {
+  background: #fff;
+  color: #302e2b;
+  border-radius: 12px;
+  padding: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.android-app .am-review-coach h2 {
+  font:
+    700 18px system-ui,
+    Arial,
+    sans-serif;
+  margin: 0 0 7px;
+}
+.android-app .am-review-coach p {
+  color: #302e2b;
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 0;
+}
+.android-app .am-review-coach small {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #777;
+}
+.android-app .am-review-coach.collapsed img {
+  height: 50px;
+  width: 44px;
+  flex-basis: 44px;
+}
+.android-app .am-review-coach.collapsed article {
+  padding: 10px;
+}
+.android-app .am-review-coach.collapsed h2 {
+  margin: 0;
+  font-size: 15px;
+}
+.android-app .am-review-coach-handle {
+  height: 18px;
+  width: 100%;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+}
+.android-app .am-review-coach-handle span {
+  width: 36px;
+  height: 4px;
+  background: #888;
+  border-radius: 2px;
+}
+.android-app .am-review-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px !important;
+  background: #81b64c !important;
+  color: #fff;
+  border-radius: 5px;
+  width: 100%;
+  margin-top: 10px;
+  font-weight: bold;
+}
+.android-app .am-review-line {
+  padding: 12px;
+  font-size: 14px;
+  color: #eee;
+}
+.android-app .am-review-line > b {
+  display: block;
+  line-height: 1.6;
+}
+.android-app .am-review-line > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.android-app .am-review-line button {
+  min-height: 42px;
+  display: grid;
+  place-items: center;
+}
+.android-app .am-review-key-filter {
+  padding: 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.android-app .am-review-key-filter label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.android-app .am-review-key-filter select,
+.android-app .am-review-settings select {
+  background: #23211f;
+  color: #ddd;
+  border: 1px solid #555;
+  padding: 6px;
+  border-radius: 4px;
+}
+.android-app .am-review-key-filter > button {
+  color: #81b64c;
+  font-weight: bold;
+}
+.android-app .am-review-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 540px;
+  margin: 0 auto;
+  background: #23211f;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1.6fr;
+  gap: 8px;
+  padding: 8px 12px;
+  z-index: 8;
+  box-shadow: 0 -4px 12px #0002;
+}
+.android-app .am-review-bottom > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  gap: 2px;
+  font-size: 12px;
+  color: #bbb;
+}
+.android-app .am-review-bottom svg {
+  width: 22px;
+  height: 22px;
+}
+.android-app .am-review-bottom .am-review-next {
+  background: linear-gradient(#8cbe4e, #61973e);
+  border-radius: 8px;
+  color: #fff;
+  font:
+    700 21px system-ui,
+    Arial,
+    sans-serif;
+  flex-direction: row;
+  gap: 2px;
+  box-shadow: 0 2px 0 #446b2b;
+}
+.android-app .am-review-footer {
+  border: 0;
+  display: block;
+  padding: 16px 12px;
+  color: #999;
+  font-size: 11px;
+}
+.android-app .am-review-footer > div {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+.android-app .am-review-footer button {
+  font-size: 12px;
+  color: #bbb;
+}
+.android-app .am-review-footer small {
+  line-height: 1.5;
+  display: block;
+}
+.android-app .am-review-shade {
+  position: fixed;
+  inset: 0;
+  background: #0009;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.android-app .am-review-settings {
+  background: #302e2b;
+  border-radius: 14px 14px 0 0;
+  width: 100%;
+  max-width: 540px;
+  padding: 18px;
+  max-height: 90dvh;
+  overflow: auto;
+}
+.android-app .am-review-settings > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.android-app .am-review-settings h2 {
+  font:
+    700 22px system-ui,
+    Arial,
+    sans-serif;
+  color: #fff;
+  margin: 0 0 14px;
+}
+.android-app .am-review-settings label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  font-size: 15px;
+}
+.android-app .am-review-settings input {
+  accent-color: #81b64c;
+  width: 22px;
+  height: 22px;
+}
+.android-app .am-review-settings p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.android-app .am-review-settings > header button {
+  padding: 5px;
+}
+@media (min-width: 600px) {
+  .android-app .am-review {
+    max-width: 540px;
+    margin: 0 auto;
+  }
+}

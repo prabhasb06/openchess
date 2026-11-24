@@ -1,0 +1,195 @@
+.android-app .am-settings-screen {
+  min-height: 100dvh;
+  background: #302e2b;
+  color: #b7b7b7;
+  padding-bottom: 20px;
+}
+.android-app .am-settings-screen > .am-mobile-header {
+  background: #23211f;
+  color: #bbb;
+}
+.android-app .am-setting-categories > button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 56px;
+  gap: 32px;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 18px;
+  color: #b7b7b7;
+}
+.android-app .am-setting-categories > button > svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  stroke-width: 2.8;
+}
+.android-app .am-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 18px 16px;
+  gap: 14px;
+  font-size: 18px;
+  color: #b7b7b7;
+  width: 100%;
+  text-align: left;
+}
+.android-app .am-setting-row > span {
+  min-width: 0;
+  flex: 1;
+}
+.android-app .am-setting-row small {
+  display: block;
+  color: #888;
+  font-size: 12px;
+  margin-top: 6px;
+}
+.android-app .am-native-switch {
+  appearance: none;
+  background: #747474;
+  width: 24px;
+  min-width: 24px;
+  height: 15px;
+  border-radius: 15px;
+  position: relative;
+  margin: 0 11px;
+}
+.android-app .am-native-switch:before {
+  content: "";
+  position: absolute;
+  background: #bfbfbf;
+  width: 20px;
+  height: 20px;
+  top: -2.5px;
+  left: -7px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px #0007;
+}
+.android-app .am-native-switch:checked {
+  background: #4b5b32;
+}
+.android-app .am-native-switch:checked:before {
+  background: #86a94c;
+  left: 11px;
+}
+.android-app .am-setting-select {
+  min-height: 74px;
+}
+.android-app .am-setting-select select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  color: #b7b7b7;
+  font:
+    400 15px system-ui,
+    sans-serif;
+  background: transparent;
+  border: 0;
+  padding: 6px 22px 0 0;
+  outline: 0;
+}
+.android-app .am-setting-select:after {
+  content: "";
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-top-color: #bbb;
+  margin: 8px 7px 0 0;
+}
+.android-app .am-setting-select option {
+  background: #302e2b;
+}
+.android-app .am-volume {
+  flex-wrap: wrap;
+}
+.android-app .am-volume input {
+  width: 100%;
+  accent-color: #81b64c;
+}
+.android-app .am-setting-note {
+  padding: 20px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #999;
+}
+.android-app .am-connection-settings {
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+.android-app .am-connection-settings p {
+  font-size: 15px;
+  line-height: 1.55;
+  color: #bbb;
+  margin: 0;
+}
+.android-app .am-connection-settings button {
+  width: 100%;
+  font-size: 18px;
+  min-height: 48px;
+}
+.android-app .am-connection-settings .connected {
+  color: #9ac968;
+}
+.android-app .am-connection-settings .disconnected {
+  color: #f4ae85;
+}
+.android-app .am-appearance-settings {
+  padding: 12px;
+}
+.android-app .am-appearance-settings h2 {
+  font:
+    700 18px system-ui,
+    sans-serif;
+  color: #ddd;
+  margin: 12px 0;
+}
+.android-app .am-board-style-grid,
+.android-app .am-piece-style-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.android-app .am-board-style-grid button,
+.android-app .am-piece-style-grid button {
+  display: grid;
+  gap: 7px;
+  border: 2px solid transparent;
+  background: #23211f;
+  color: #aaa;
+  border-radius: 6px;
+  padding: 7px;
+  min-width: 0;
+  font-size: 12px;
+}
+.android-app .am-board-style-grid button.selected,
+.android-app .am-piece-style-grid button.selected {
+  border-color: #81b64c;
+  color: #fff;
+}
+.android-app .am-board-style-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.android-app .am-piece-style-grid img {
+  width: 70%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  margin: auto;
+}
+.android-app .am-board-style-grid span,
+.android-app .am-piece-style-grid span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.android-app .am-board-swatch {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  background: conic-gradient(var(--swatch-light) 25%, var(--swatch-dark) 0 50%, var(--swatch-light) 0 75%, var(--swatch-dark) 0) 0 0 / 50% 50%;
+}

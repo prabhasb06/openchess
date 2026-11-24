@@ -1,0 +1,274 @@
+.android-app .am-onboarding {
+  min-height: 100dvh;
+  background: #302d2b;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+  max-width: 620px;
+  margin: 0 auto;
+  font-family: system-ui, Arial, sans-serif;
+}
+.android-app .am-onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  flex: none;
+}
+.android-app .am-onboarding-header > img {
+  width: 108px;
+  height: 30px;
+  object-fit: contain;
+}
+.android-app .am-onboarding-header > button {
+  font-size: 15px;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 8px 0 8px 16px;
+  color: #d9d8d6;
+}
+.android-app .am-onboarding-introduction {
+  display: flex;
+  flex: 1;
+  min-height: 240px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.android-app .am-onboarding h1 {
+  font:
+    700 28px/1.15 system-ui,
+    Arial,
+    sans-serif;
+  margin: 8px 0 0;
+}
+.android-app .am-onboarding-hero {
+  width: 100%;
+  height: clamp(190px, 31dvh, 320px);
+  position: relative;
+  margin: 12px auto 18px;
+  overflow: hidden;
+}
+.android-app .am-onboarding-pawn {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.android-app .am-onboarding-hero > img {
+  width: 160px;
+  height: 100%;
+  object-fit: contain;
+}
+.android-app .am-onboarding-hero.is-static {
+  height: clamp(180px, 28dvh, 280px);
+  max-width: 150px;
+}
+.android-app .am-onboarding-methods {
+  padding: 0 0 22px;
+  flex: none;
+}
+.android-app .am-onboarding-methods > button {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  font:
+    700 16px system-ui,
+    Arial,
+    sans-serif;
+  padding: 12px 16px;
+}
+.android-app .am-onboarding-methods .am-onboarding-google {
+  background: #fff;
+  color: #2d2b28;
+  box-shadow: 0 3px 0 #d4d3d0;
+}
+.android-app .am-onboarding-google img {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+.android-app .am-onboarding-methods .am-onboarding-email {
+  background: #45423e;
+  border: 1px solid #5b5751;
+  box-shadow: 0 3px 0 #24221f;
+  color: #fff;
+}
+.android-app .am-onboarding-email svg {
+  width: 24px;
+  height: 24px;
+  color: #d8d6d2;
+}
+.android-app .am-onboarding-or {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  color: #999692;
+  font-size: 13px;
+  margin: 15px 0;
+}
+.android-app .am-onboarding-or > span {
+  height: 1px;
+  background: #56524c;
+  flex: 1;
+}
+.android-app .am-onboarding-methods .am-onboarding-guest {
+  margin-top: 14px;
+  color: #e2e0dd;
+  min-height: 48px;
+  background: none;
+  box-shadow: none;
+}
+.android-app .am-onboarding-methods .am-onboarding-phone {
+  background: #81b64c;
+  color: #fff;
+  box-shadow: 0 3px 0 #537d2e;
+  margin-bottom: 14px;
+}
+.android-app .am-onboarding-terms {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #95928c;
+  text-align: center;
+  padding: 0 7px;
+  margin-top: 14px;
+}
+.android-app .am-onboarding-terms a {
+  color: #bcb9b2;
+  text-decoration: underline;
+}
+.android-app .am-onboarding-error {
+  font-size: 13px;
+  color: #efb5a7;
+  text-align: center;
+  margin-top: 12px;
+}
+.android-app .am-onboarding-availability {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  background: #000b;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.android-app .am-onboarding-dialog {
+  position: relative;
+  padding: 32px 22px 18px;
+  background: #302d2b;
+  border: 1px solid #4f4a43;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 390px;
+  width: 100%;
+  max-height: 90dvh;
+  overflow: auto;
+}
+.android-app .am-onboarding-dialog > img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+.android-app .am-onboarding-dialog h2 {
+  font:
+    700 23px/1.2 system-ui,
+    sans-serif;
+  margin-bottom: 8px;
+}
+.android-app .am-onboarding-dialog h3 {
+  font:
+    700 18px system-ui,
+    sans-serif;
+  color: #abd078;
+  margin: 12px 0;
+}
+.android-app .am-onboarding-dialog p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #bbb6ae;
+  margin-bottom: 22px;
+}
+.android-app .am-onboarding-dialog > .am-primary {
+  width: 100%;
+  min-height: 48px;
+}
+.android-app .am-onboarding-close {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: #aaa;
+}
+.android-app .am-onboarding-dialog-back {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 8px;
+  color: #aaa;
+}
+.android-app .am-onboarding-dialog-back svg {
+  width: 17px;
+}
+@media (max-height: 650px) {
+  .android-app .am-onboarding-header {
+    min-height: 54px;
+  }
+  .android-app .am-onboarding-introduction {
+    min-height: 200px;
+  }
+  .android-app .am-onboarding h1 {
+    font-size: 26px;
+  }
+  .android-app .am-onboarding-hero {
+    height: 170px;
+    margin-bottom: 10px;
+  }
+  .android-app .am-onboarding-methods > button {
+    min-height: 48px;
+  }
+  .android-app .am-onboarding-methods {
+    padding-bottom: 12px;
+  }
+  .android-app .am-onboarding-or {
+    margin: 11px 0;
+  }
+  .android-app .am-onboarding-terms {
+    margin-top: 8px;
+  }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .android-app .am-onboarding {
+    max-width: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 28px;
+    padding-bottom: 12px;
+  }
+  .android-app .am-onboarding-header {
+    grid-column: 1/-1;
+  }
+  .android-app .am-onboarding-introduction {
+    min-height: 0;
+    justify-content: start;
+  }
+  .android-app .am-onboarding-hero,
+  .android-app .am-onboarding-hero.is-static {
+    height: 190px;
+    min-height: 0;
+  }
+  .android-app .am-onboarding-methods {
+    padding-top: 8px;
+  }
+}

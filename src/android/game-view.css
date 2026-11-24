@@ -1,0 +1,721 @@
+.android-app .am-game {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #23211f;
+  color: #fff;
+  font-family: system-ui, Arial, sans-serif;
+  position: relative;
+}
+.android-app .am-game-header {
+  height: 56px;
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+.android-app .am-game-header > button {
+  height: 44px;
+  width: 32px;
+  color: #969592;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.android-app .am-game-header > button svg {
+  width: 27px;
+  height: 27px;
+  stroke-width: 3;
+}
+.android-app .am-game-header > img {
+  width: 106px;
+  height: 35px;
+  object-fit: contain;
+}
+.android-app .am-game-engine {
+  height: 56px;
+  flex: 0 0 56px;
+  padding: 0 16px 10px;
+  min-width: 0;
+}
+.android-app .am-game-pv {
+  height: 31px;
+  line-height: 29px;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+.android-app .am-game-eval {
+  height: 20px;
+  border-radius: 3px;
+  background: #494746;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.android-app .am-game-eval > span {
+  background: #eee;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.android-app .am-game-eval > b {
+  position: relative;
+  color: #302e2b;
+  font-size: 12px;
+  margin-right: 5px;
+  font-weight: 700;
+  background: #eeeeeedd;
+  padding-left: 3px;
+}
+.android-app .am-game-opponent {
+  height: 112px;
+  flex: 0 0 112px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 8px 8px 16px;
+  position: relative;
+  gap: 6px;
+}
+.android-app .am-game-bot-avatar {
+  width: 68px;
+  height: 80px;
+  flex: 0 0 68px;
+  display: flex;
+  align-items: flex-end;
+}
+.android-app .am-game-bot-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+}
+.android-app .am-game-speech {
+  margin-bottom: 0;
+  border-radius: 11px;
+  background: #fff;
+  color: #302e2b;
+  padding: 15px 16px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+.android-app .am-game-speech:before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  bottom: 23px;
+  border-width: 0 16px 9px 0;
+  border-style: solid;
+  border-color: transparent #fff transparent transparent;
+  transform: rotate(-20deg);
+}
+.android-app .am-game-upper-clock {
+  position: absolute;
+  right: 8px;
+  top: 3px;
+}
+.android-app .am-game-opponent-local {
+  height: 56px;
+  flex-basis: 56px;
+  align-items: center;
+  padding: 6px 12px;
+  gap: 10px;
+}
+.android-app .am-game-opponent-local strong {
+  font-size: 14px;
+}
+.android-app .am-game-opponent-local .am-game-clock {
+  margin-left: auto;
+}
+.android-app .am-game-player-avatar {
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background: #44413d;
+}
+.android-app .am-game-board {
+  width: 100%;
+  position: relative;
+  flex: none;
+}
+.android-app .am-game-board .chessboard {
+  width: 100%;
+  max-width: none;
+  border-radius: 0;
+  aspect-ratio: 1;
+  box-shadow: none;
+}
+.android-app .am-game-board .board-wrap {
+  padding: 0;
+  width: 100%;
+  max-width: none;
+}
+.android-app .am-game-board .piece {
+  transition: none;
+}
+.android-app .am-game-material {
+  height: 34px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  color: #bebdb9;
+  font-size: 14px;
+  gap: 5px;
+  background: #2b2926;
+}
+.android-app .am-captures {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.android-app .am-captures > img {
+  height: 17px;
+  width: 13px;
+  object-fit: contain;
+  margin-right: -3px;
+}
+.android-app .am-game-material-spacer {
+  flex: 1;
+}
+.android-app .am-game-self {
+  font-size: 21px;
+  color: #fff;
+  line-height: 1;
+}
+.android-app .am-game-clock {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 16px;
+  color: #eee;
+  background: #3a3835;
+  border-radius: 3px;
+  padding: 3px 6px;
+}
+.android-app .am-game-state {
+  min-height: 24px;
+  flex: 1;
+  text-align: center;
+  color: #a6a4a0;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: #2b2926;
+}
+.android-app .am-game-notation {
+  height: 62px;
+  flex: 0 0 62px;
+  display: flex;
+  align-items: center;
+  background: #2b2926;
+  min-width: 0;
+}
+.android-app .am-game-notation > button {
+  width: 42px;
+  flex: 0 0 42px;
+  align-self: stretch;
+  color: #a1a09c;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.android-app .am-game-notation > button svg {
+  width: 27px;
+  height: 27px;
+  stroke-width: 3;
+}
+.android-app .am-game-move-strip {
+  display: flex;
+  align-items: center;
+  overflow: auto;
+  scrollbar-width: none;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overscroll-behavior-x: contain;
+}
+.android-app .am-game-move-strip::-webkit-scrollbar {
+  display: none;
+}
+.android-app .am-game-move-strip > button {
+  font-family: system-ui, Arial, sans-serif;
+  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 700;
+  padding: 5px 3px;
+  flex: none;
+  color: #fff;
+  border-radius: 2px;
+}
+.android-app .am-game-move-strip > button[aria-current="true"] {
+  background: #34322f;
+  box-shadow: 0 2px 0 #8b8984;
+}
+.android-app .am-game-move-number {
+  font-size: 16px;
+  color: #b6b5b1;
+  flex: none;
+}
+.android-app .am-game-empty-moves {
+  color: #7e7c79;
+  font-size: 13px;
+}
+.android-app .am-game-actions {
+  height: 64px;
+  flex: 0 0 64px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #2b2926;
+  padding: 1px 0 4px;
+}
+.android-app .am-game-actions > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #969591;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 0;
+}
+.android-app .am-game-actions svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.8;
+}
+.android-app .am-game button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.android-app .am-game-result-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  background: #2b2926;
+  padding: 5px 12px;
+}
+.android-app .am-game-result-actions button,
+.android-app .am-game-confirm-actions > button:last-child {
+  background: linear-gradient(#8abc4e, #62943e);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 7px;
+  padding: 11px 17px;
+  box-shadow: 0 2px 0 #4b7130;
+}
+.android-app .am-game-connection {
+  background: #45312b;
+  padding: 8px 12px;
+  color: #ffcfb8;
+  font-size: 12px;
+  text-align: center;
+}
+.android-app .am-game-connection p {
+  line-height: 1.35;
+}
+.android-app .am-game-connection > div {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 5px;
+}
+.android-app .am-game-connection button {
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  padding: 5px;
+}
+.android-app .am-game-pause-layer {
+  position: absolute;
+  inset: 0;
+  background: #24221fd9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  z-index: 20;
+}
+.android-app .am-game-pause-layer > button {
+  background: #81b64c;
+  color: white;
+  padding: 12px 26px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.android-app .am-game-modal-cover {
+  position: fixed;
+  inset: 0;
+  background: #000b;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+}
+.android-app .am-game-modal {
+  width: 100%;
+  max-width: 460px;
+  border: 1px solid #3d3b37;
+  border-radius: 10px;
+  background: #272521;
+  overflow: hidden;
+  max-height: calc(100dvh - 30px);
+  overflow-y: auto;
+  color: #c2c1bd;
+  font-family: system-ui, Arial, sans-serif;
+}
+.android-app .am-game-modal > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #211f1c;
+  padding: 13px 12px;
+  min-height: 48px;
+}
+.android-app .am-game-modal > header h2 {
+  font-size: 16px;
+  color: #ddd;
+  font-family: system-ui, Arial, sans-serif;
+  font-weight: 700;
+}
+.android-app .am-game-modal > header > button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: #969591;
+  padding: 0;
+}
+.android-app .am-game-options > button {
+  display: block;
+  text-align: left;
+  width: 100%;
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  min-height: 48px;
+}
+.android-app .am-game-options > button:active {
+  background: #ffffff0b;
+}
+.android-app .am-game-confirm-text {
+  padding: 20px 16px !important;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.android-app .am-game-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 0 16px 18px;
+}
+.android-app .am-game-confirm-actions > button {
+  padding: 10px 17px;
+}
+.android-app .am-game-notice {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%);
+  background: #45423c;
+  color: #fff;
+  border-radius: 6px;
+  padding: 10px 16px;
+  z-index: 1100;
+  white-space: nowrap;
+  font-size: 13px;
+  box-shadow: 0 3px 12px #0005;
+}
+.android-app .am-game-sheet-cover {
+  align-items: flex-end;
+  padding: 0;
+}
+.android-app .am-game-sheet {
+  border-radius: 12px 12px 0 0;
+}
+@media (min-width: 620px) {
+  .android-app .am-game {
+    min-height: 100dvh;
+  }
+  .android-app .am-game-opponent {
+    height: 100px;
+    flex-basis: 100px;
+  }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .android-app .am-game {
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: minmax(230px, calc(100dvh - 56px)) minmax(220px, 1fr);
+    min-height: 100dvh;
+  }
+  .android-app .am-game-header {
+    grid-column: 1/-1;
+  }
+  .android-app .am-game-board {
+    grid-column: 1;
+    grid-row: 2/8;
+  }
+  .android-app .am-game-engine,
+  .android-app .am-game-opponent,
+  .android-app .am-game-material,
+  .android-app .am-game-state,
+  .android-app .am-game-notation,
+  .android-app .am-game-actions {
+    grid-column: 2;
+  }
+  .android-app .am-game-opponent {
+    height: 80px;
+    min-height: 80px;
+  }
+  .android-app .am-game-connection,
+  .android-app .am-game-result-actions {
+    grid-column: 2;
+  }
+}
+.android-app .am-local-game {
+  background: #302d2b;
+  min-height: 100dvh;
+}
+.android-app .am-local-header {
+  height: 58px;
+  flex: 0 0 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: #302d2b;
+}
+.android-app .am-local-header > button {
+  width: 28px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #969591;
+  padding: 0;
+}
+.android-app .am-local-header > button svg {
+  width: 27px;
+  height: 27px;
+  stroke-width: 3;
+}
+.android-app .am-local-header > span {
+  width: 28px;
+}
+.android-app .am-local-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: system-ui, Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.android-app .am-local-header h1 > img {
+  width: 30px;
+  height: 34px;
+  object-fit: contain;
+}
+.android-app .am-local-header-gap {
+  height: 28px;
+  flex: 0 0 28px;
+  background: #23211f;
+}
+.android-app .am-local-player {
+  height: 128px;
+  flex: 1 0 128px;
+  display: flex;
+  align-items: center;
+  padding: 0 17px;
+  gap: 11px;
+  color: #bcbab7;
+  min-width: 0;
+}
+.android-app .am-local-player > div:not(.am-local-avatar) {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.android-app .am-local-player strong {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.android-app .am-local-avatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  background: #e7e6e4;
+  display: grid;
+  place-items: center;
+}
+.android-app .am-local-avatar img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+.android-app .am-local-player .am-game-clock {
+  margin-left: auto;
+  color: #ddd;
+}
+.android-app .am-local-player .am-local-history-return {
+  margin-left: auto;
+  flex: 0 0 auto;
+  align-items: stretch;
+  gap: 3px;
+  text-align: center;
+}
+.android-app .am-local-history-return small {
+  font-size: 12px;
+  color: #bcbab7;
+}
+.android-app .am-local-history-return button,
+.android-app .am-game-state .am-history-return {
+  background: #648e3b;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0 10px;
+  min-height: 38px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.android-app .am-game-state .am-history-return {
+  min-height: 30px;
+  margin-left: 8px;
+}
+.android-app .am-local-result {
+  font-size: 12px;
+  color: #b9d69a;
+  line-height: 1.4;
+}
+.android-app .am-local-controls {
+  height: 56px;
+  flex: 0 0 56px;
+  background: #1d1b1a;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 3px 0;
+}
+.android-app .am-local-controls > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #aaa8a4;
+  font-size: 12px;
+  padding: 0;
+}
+.android-app .am-local-controls svg {
+  width: 25px;
+  height: 25px;
+  stroke-width: 3;
+}
+.android-app .am-local-controls > button:disabled {
+  opacity: 1;
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .android-app .am-local-game {
+    display: grid;
+    grid-template-columns: minmax(230px, calc(100dvh - 58px)) minmax(200px, 1fr);
+  }
+  .android-app .am-local-header {
+    grid-column: 1/-1;
+  }
+  .android-app .am-local-header-gap {
+    display: none;
+  }
+  .android-app .am-local-player,
+  .android-app .am-local-controls {
+    grid-column: 2;
+  }
+  .android-app .am-local-player {
+    height: auto;
+    min-height: 70px;
+  }
+  .android-app .am-local-controls {
+    align-self: end;
+  }
+  .android-app .am-local-game .am-game-board {
+    grid-row: 2/5;
+  }
+}
+.android-app .am-local-notation {
+  height: 28px;
+  flex: 0 0 28px;
+  background: #262421;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: auto hidden;
+  padding: 0 16px;
+  white-space: nowrap;
+  scrollbar-width: none;
+  font:
+    400 14px system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-local-notation > span {
+  color: #777;
+  margin: 0 4px 0 8px;
+}
+.android-app .am-local-notation button {
+  padding: 2px 8px;
+  color: #ddd;
+  border-radius: 4px;
+  line-height: 19px;
+  font-size: 14px;
+  min-height: 0;
+}
+.android-app .am-local-notation button.current {
+  background: #55534f;
+  font-weight: 700;
+}
+.android-app .am-local-game .am-game-options button {
+  font-size: 14px;
+  padding: 17px 14px;
+  min-height: 48px;
+}
+.android-app .am-local-game .am-game-modal {
+  padding: 0;
+}
+.android-app .am-local-game .am-game-options {
+  padding: 6px 0;
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .android-app .am-local-notation {
+    grid-column: 2;
+  }
+  .android-app .am-local-game .am-game-board {
+    grid-row: 2/6;
+  }
+}

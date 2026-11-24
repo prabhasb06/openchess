@@ -1,0 +1,824 @@
+.android-app {
+  --am-bg: #23211f;
+  --am-panel: #302e2b;
+  --am-text: #fff;
+  --am-muted: #9b9996;
+  --am-tab-height: 68px;
+  background: var(--am-bg);
+  color: var(--am-text);
+  font-family: system-ui, Arial, sans-serif;
+  min-height: 100dvh;
+  font-synthesis: none;
+}
+.android-app * {
+  box-sizing: border-box;
+}
+.android-app button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  border: 0;
+  background: none;
+  margin: 0;
+}
+.android-app button:focus-visible {
+  outline: 2px solid #b5d78d;
+  outline-offset: 3px;
+}
+.android-app h1,
+.android-app h2,
+.android-app h3,
+.android-app p {
+  margin: 0;
+}
+.android-app .am-color-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.android-app .am-color-icon[data-icon="time-rapid"],
+.android-app .am-color-icon[data-icon="play-white"] {
+  color: #a9c884;
+}
+.android-app .am-color-icon[data-icon="time-bullet"] {
+  color: #ebc16a;
+}
+.android-app .am-color-icon[data-icon="time-blitz"] {
+  color: #edba52;
+}
+.android-app .am-color-icon[data-icon="commerce-diamond"],
+.android-app .am-color-icon[data-icon="friends"] {
+  color: #8ac3dc;
+}
+.android-app .am-recommended-picture .am-color-icon {
+  color: #426975;
+}
+.android-app .am-recommended-play .am-color-icon {
+  color: #fff;
+}
+.android-app .am-icon-button {
+  width: 40px;
+  height: 40px;
+  padding: 6px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: #92918e;
+}
+.android-app .am-icon-button svg {
+  width: 28px;
+  height: 28px;
+}
+.android-app .am-icon-button:active {
+  background: #ffffff12;
+}
+.android-app .am-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: linear-gradient(#83b94d, #629544);
+  box-shadow:
+    inset 0 1px 1px #b6d87a,
+    0 2px 0 #426532,
+    0 3px 4px #0003;
+  font:
+    800 24px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  color: #fff;
+  text-shadow: 0 1px 1px #37632b66;
+}
+.android-app .am-primary:active {
+  filter: brightness(0.92);
+  box-shadow:
+    inset 0 1px 1px #a2c568,
+    0 1px 0 #426532;
+  transform: translateY(1px);
+}
+.android-app .am-surface {
+  border-radius: 10px;
+  background: linear-gradient(#3c3a37, #32302d);
+  box-shadow:
+    inset 0 1px 0 #55534f,
+    0 2px 3px #0002;
+}
+.android-app .am-header {
+  height: 68px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  padding: 0 8px;
+  background: var(--am-bg);
+  flex-shrink: 0;
+}
+.android-app .am-header h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  font:
+    800 24px/1.15 system-ui,
+    Arial,
+    sans-serif;
+  white-space: nowrap;
+}
+.android-app .am-header h1 .am-color-icon {
+  width: 34px;
+  height: 34px;
+}
+.android-app .am-header .am-icon-button {
+  width: 32px;
+  height: 44px;
+  padding: 0;
+}
+.android-app .am-header .am-icon-button svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 3;
+}
+.android-app .am-header > .am-icon-button:last-child {
+  justify-self: end;
+}
+.android-app .am-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  height: var(--am-tab-height);
+  padding: 4px 8px 5px;
+  background: linear-gradient(#302e2bf2, #302e2b);
+  backdrop-filter: blur(12px);
+}
+.android-app .am-tabs button {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 3px 0;
+  font:
+    700 12px/1.1 system-ui,
+    Arial,
+    sans-serif;
+  color: #999895;
+}
+.android-app .am-tabs button svg,
+.android-app .am-tabs button .am-nav-glyph {
+  width: 26px;
+  height: 26px;
+  display: block;
+  flex-shrink: 0;
+}
+.android-app .am-nav-glyph {
+  color: inherit;
+}
+.android-app .am-glyph-cutout {
+  fill: #302e2b;
+}
+.android-app .am-tabs .is-active {
+  color: #fff;
+}
+.android-app .am-home {
+  padding: 0 0 calc(var(--am-tab-height) + 84px);
+  min-height: 100dvh;
+  background: linear-gradient(#23211f 0, #2c2926 100%);
+}
+.android-app .am-home-topbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  height: 82px;
+  padding: 14px 12px 0;
+}
+.android-app .am-profile-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  background: #e1dfdb;
+  border-radius: 3px;
+  overflow: hidden;
+  padding: 0;
+}
+.android-app .am-profile-button img {
+  width: 30px;
+  height: 30px;
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+.android-app .am-streak-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0;
+  color: #fff;
+  font-family: system-ui, Arial, sans-serif;
+  font-weight: 800;
+}
+.android-app .am-streak-button svg {
+  width: 23px;
+  height: 30px;
+  color: #c21963;
+  stroke-width: 2;
+}
+.android-app .am-streak-button strong {
+  font-size: 16px;
+}
+.android-app .am-topbar-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  margin-top: -2px;
+}
+.android-app .am-topbar-actions .am-icon-button {
+  width: 36px;
+  height: 36px;
+  padding: 3px;
+}
+.android-app .am-topbar-actions .am-color-icon {
+  width: 30px;
+  height: 30px;
+}
+.android-app .am-feature-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 0 12px 5px;
+}
+.android-app .am-feature-carousel::-webkit-scrollbar,
+.android-app .am-rating-carousel::-webkit-scrollbar,
+.android-app .am-friends-carousel::-webkit-scrollbar {
+  display: none;
+}
+.android-app .am-feature-carousel > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+.android-app .am-puzzle-feature {
+  position: relative;
+  background: linear-gradient(135deg, #384437, #3f643f);
+  width: 286px;
+  height: 137px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 3px #0003;
+  padding: 17px 16px;
+}
+.android-app .am-puzzle-feature h2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font:
+    800 24px/1.1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-puzzle-level {
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 32px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  font:
+    800 16px/1 system-ui,
+    Arial,
+    sans-serif;
+  background: #243628;
+  border-radius: 50%;
+}
+.android-app .am-puzzle-feature-bottom {
+  position: absolute;
+  bottom: 17px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.android-app .am-puzzle-progress {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+  min-width: 0;
+  padding-bottom: 2px;
+}
+.android-app .am-puzzle-progress > strong {
+  font:
+    800 15px/1 system-ui,
+    Arial,
+    sans-serif;
+  letter-spacing: 0.5px;
+}
+.android-app .am-orange-streak {
+  display: inline-flex;
+  align-items: center;
+  font:
+    800 14px/1 system-ui,
+    Arial,
+    sans-serif;
+  color: #ff7c25;
+}
+.android-app .am-orange-streak svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1;
+}
+.android-app .am-progress-track {
+  height: 16px;
+  flex-basis: 100%;
+  background: #ffffff1c;
+  border-radius: 10px;
+  margin-top: 2px;
+}
+.android-app .am-progress-track i {
+  display: block;
+  background: #ff7d24;
+  border-radius: 10px;
+  height: 100%;
+  min-width: 20px;
+  box-shadow: 0 0 0 5px #7b3d1c55;
+}
+.android-app .am-puzzle-feature .am-primary {
+  min-height: 31px;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 16px;
+}
+.android-app .am-daily-feature {
+  width: 220px;
+  height: 137px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+.android-app .am-daily-feature .am-color-icon {
+  width: 50px;
+  height: 50px;
+}
+.android-app .am-daily-feature strong {
+  font:
+    800 16px/1.2 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-daily-feature span {
+  font-size: 12px;
+  color: #bcbab6;
+}
+.android-app .am-home-section {
+  margin-top: 25px;
+}
+.android-app .am-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 12px 12px;
+}
+.android-app .am-section-title h2 {
+  font:
+    800 16px/1.2 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-section-title > button {
+  font:
+    700 14px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  color: #d0ceca;
+  padding: 0;
+}
+.android-app .am-recommended-card {
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
+  width: calc(100% - 24px);
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  height: 80px;
+}
+.android-app .am-recommended-picture {
+  width: 80px;
+  height: 80px;
+  flex: 0 0 80px;
+  background: repeating-conic-gradient(#a9bdc0 0 25%, #dae4e2 0 50%) 0/40px 40px;
+  display: grid;
+  place-items: center;
+}
+.android-app .am-recommended-picture .am-color-icon {
+  width: 58px;
+  height: 58px;
+}
+.android-app .am-recommended-card > div:nth-child(2) {
+  padding: 0 12px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.android-app .am-recommended-card strong {
+  font:
+    800 15px/1.1 system-ui,
+    Arial,
+    sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.android-app .am-recommended-card > div:nth-child(2) > span {
+  color: #a8a5a0;
+  font:
+    700 11px/1.1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-recommended-card small {
+  align-self: start;
+  background: #80b64c14;
+  border-radius: 3px;
+  color: #81b64c;
+  padding: 2px 4px;
+  font:
+    700 11px/1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-recommended-play {
+  width: 48px;
+  min-height: 48px;
+  border-radius: 12px;
+  margin-right: 12px;
+  padding: 8px;
+}
+.android-app .am-recommended-play .am-color-icon {
+  width: 30px;
+  height: 30px;
+}
+.android-app .am-rating-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 1px 12px 5px;
+  scrollbar-width: none;
+}
+.android-app .am-rating-card {
+  flex: 0 0 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 5px 6px;
+  gap: 2px;
+  border-radius: 6px;
+}
+.android-app .am-rating-card .am-color-icon {
+  width: 43px;
+  height: 43px;
+  margin-bottom: 5px;
+}
+.android-app .am-rating-card strong {
+  font:
+    800 20px/1 system-ui,
+    Arial,
+    sans-serif;
+  color: #e4e2de;
+}
+.android-app .am-rating-card span {
+  font:
+    700 12px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  color: #aaa7a3;
+}
+.android-app .am-friends-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 1px 12px 5px;
+  scrollbar-width: none;
+}
+.android-app .am-friend-card {
+  flex: 0 0 137px;
+  height: 118px;
+  padding: 15px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.android-app .am-friend-card > .am-color-icon,
+.android-app .am-friend-card > svg {
+  width: 58px;
+  height: 58px;
+  color: #83b94d;
+  stroke-width: 2.5;
+}
+.android-app .am-friend-card strong {
+  font:
+    700 13px/1.1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-home-play-dock {
+  position: fixed;
+  bottom: var(--am-tab-height);
+  left: 0;
+  right: 0;
+  padding: 16px 12px 12px;
+  background: linear-gradient(#302e2b80, #302e2bf5 25%);
+  z-index: 29;
+  backdrop-filter: blur(10px);
+}
+.android-app .am-home-play-dock > .am-primary {
+  width: 100%;
+}
+.android-app .am-play-menu {
+  min-height: 100dvh;
+  background: linear-gradient(#23211f, #302d2a);
+}
+.android-app .am-play-menu-content {
+  padding: 8px 12px 20px;
+}
+.android-app .am-time-picker {
+  position: relative;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  color: #d4d2ce;
+  border-radius: 12px;
+}
+.android-app .am-time-picker .am-color-icon {
+  width: 30px;
+  height: 30px;
+}
+.android-app .am-time-picker > strong {
+  font:
+    800 22px/1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-time-picker > svg {
+  position: absolute;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  color: #a3a19d;
+  stroke-width: 3;
+}
+.android-app .am-start-online {
+  width: 100%;
+  margin-top: 8px;
+  min-height: 56px;
+  font-size: 24px;
+}
+.android-app .am-play-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 24px;
+}
+.android-app .am-play-choices > button {
+  height: 48px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+.android-app .am-play-choices > button .am-color-icon {
+  width: 30px;
+  height: 30px;
+}
+.android-app .am-play-choices > button strong {
+  font:
+    800 20px/1.1 system-ui,
+    Arial,
+    sans-serif;
+  color: #dedcd8;
+}
+.android-app .am-play-more {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 36px;
+  padding: 8px;
+}
+.android-app .am-play-more > svg {
+  width: 29px;
+  height: 29px;
+  color: #969490;
+  stroke-width: 3.5;
+}
+@media (max-width: 350px) {
+  .android-app .am-puzzle-feature {
+    width: calc(100vw - 70px);
+  }
+  .android-app .am-recommended-picture {
+    width: 64px;
+    flex-basis: 64px;
+  }
+  .android-app .am-recommended-card > div:nth-child(2) {
+    padding: 0 8px;
+  }
+  .android-app .am-recommended-play {
+    width: 40px;
+    min-height: 40px;
+    margin-right: 8px;
+  }
+  .android-app .am-header h1 {
+    font-size: 22px;
+  }
+}
+
+.android-app .am-puzzle-feature > .am-feature-pawn {
+  position: absolute;
+  right: 22px;
+  top: 6px;
+  width: 50px;
+  height: 64px;
+}
+
+.android-app .am-feature-carousel {
+  scroll-padding-inline: 12px;
+}
+.android-app .am-header {
+  height: 66px;
+}
+.android-app .am-header h1 {
+  font-size: 22px;
+}
+.android-app .am-time-picker {
+  height: 48px;
+}
+.android-app .am-expanded-play-choices {
+  margin-top: 0;
+}
+.android-app .am-more-page {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--am-tab-height) + 16px);
+  background: linear-gradient(#23211f, #302d2a);
+}
+.android-app .am-more-brand {
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font:
+    800 26px/1 system-ui,
+    Arial,
+    sans-serif;
+  letter-spacing: -1px;
+}
+.android-app .am-more-brand .am-nav-glyph {
+  width: 18px;
+  height: 31px;
+  color: #779e44;
+  flex-shrink: 0;
+  transform: rotate(8deg);
+}
+.android-app .am-more-brand small {
+  font:
+    400 18px/1 system-ui,
+    Arial,
+    sans-serif;
+  letter-spacing: -0.6px;
+}
+.android-app .am-premium-banner {
+  width: calc(100% - 24px);
+  margin: 0 12px;
+  height: 80px;
+  background: linear-gradient(#0075ac, #009ccb);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 20px;
+  text-align: left;
+}
+.android-app .am-premium-banner .am-color-icon {
+  width: 60px;
+  height: 60px;
+}
+.android-app .am-premium-banner > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.android-app .am-premium-banner strong {
+  font:
+    800 24px/1.1 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-premium-banner small {
+  font:
+    700 12px/1.2 system-ui,
+    Arial,
+    sans-serif;
+}
+.android-app .am-more-account {
+  margin-top: 40px;
+  padding: 0 12px;
+}
+.android-app .am-more-account > h2 {
+  font:
+    800 16px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  margin-bottom: 10px;
+}
+.android-app .am-more-rows {
+  display: flex;
+  flex-direction: column;
+}
+.android-app .am-more-rows > button {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  padding: 0;
+}
+.android-app .am-more-rows > button .am-color-icon {
+  width: 24px;
+  height: 24px;
+}
+.android-app .am-more-rows > button strong {
+  font:
+    700 17px/1.2 system-ui,
+    Arial,
+    sans-serif;
+  color: #dedcd8;
+}
+.android-app .am-more-profile {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  background: #dfddd9;
+}
+.android-app .am-more-profile img {
+  width: 23px;
+  height: 23px;
+  filter: grayscale(1);
+  opacity: 0.65;
+}
+.android-app .am-home-classic .am-feature-carousel {
+  flex-direction: column;
+  overflow: visible;
+  scroll-snap-type: none;
+}
+.android-app .am-home-classic .am-feature-carousel > * {
+  width: 100%;
+}
+.android-app .am-home-classic .am-daily-feature {
+  height: 100px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  column-gap: 14px;
+  text-align: left;
+}
+.android-app .am-home-classic .am-daily-feature .am-color-icon {
+  grid-row: span 2;
+  width: 56px;
+  height: 56px;
+}
+.android-app .am-home-classic .am-daily-feature span {
+  flex-basis: calc(100% - 70px);
+  margin-left: 70px;
+  margin-top: -20px;
+}
