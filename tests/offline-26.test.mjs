@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Chess } from "chess.js";
 import { botSearch, chooseOpponentMove, coachFeedback, coachHint } from "../src/android/offline-opponents.js";
+import { adjustableBot, mobileBots } from "../src/android/local-bots.js";
 import { classifyMove, sacrificeCapture, runGameReview } from "../src/review-model.js";
 import { analyzePosition } from "../server.mjs";
 
@@ -11,7 +12,7 @@ function seeded(seed) {
   return () => ((seed = (Math.imul(1664525, seed) + 1013904223) >>> 0) / 2**32);
 }
 
-test("beginner, intermediate and advanced move choices separate at every stage with either color", async () => {
+test("beginner bots choose less reliably across openings, tactics and endings for both colors", async () => {
   const positions = [
     new Chess().fen(),
     "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
@@ -24,20 +25,55 @@ test("beginner, intermediate and advanced move choices separate at every stage w
   for (const fen of positions) {
     const board = new Chess(fen);
     const legal = new Set(board.moves({ verbose:true }).map(uci));
-    const result = await analyzePosition({ fen, skill:20, movetime:60 });
-    const rates = [250, 1300, 1950, 2800].map((rating, tier) => {
+    const result = await analyzePosition({ fen, skill:20, multiPv:3, movetime:100 });
+    const ratings = [300, 1200, 1800, 2200];
+    const rates = ratings.map((rating, tier) => {
       const random = seeded(738463);
-      const sampled = Array.from({length:360}, () => chooseOpponentMove(board, result, {rating}, random));
+      const sampled = Array.from({length:160}, () => chooseOpponentMove(board, result, {rating}, random));
       assert(sampled.every(move => legal.has(move)));
       const weaker = sampled.filter(move => move !== result.bestmove).length;
       totals[tier] += weaker;
       return weaker;
     });
-    assert(rates[0] > rates[1] && rates[1] > rates[2] && rates[2] > rates[3], rates.join(", "));
+    assert(rates[0] > rates[1] && rates[1] > rates[2] && rates[3] === 0, rates.join(", "));
   }
   assert.equal(botSearch({rating:2800}, 10).skill, 20);
   assert.equal(botSearch({rating:250}, 0).depth, 5);
-  console.log("Non-top choices out of 2160 per tier:", totals);
+  console.log("Non-top choices out of 960 per tier:", totals);
+});
+
+test("Stockfish strength at maximum has enough time to search beyond beginner depth", async () => {
+  const minimum = botSearch(adjustableBot, 0);
+  const maximum = botSearch(adjustableBot, 20);
+  assert.equal(minimum.skill, 0);
+  assert.equal(maximum.skill, 20);
+  assert(maximum.movetime > minimum.movetime);
+  assert.equal(maximum.depth, undefined);
+  assert.equal(chooseOpponentMove(new Chess(), {bestmove:"e2e4"}, adjustableBot, () => 0), "e2e4");
+  const result = await analyzePosition({fen:new Chess().fen(), ...maximum});
+  assert(result.depth > 5);
+
+  const rated = mobileBots.filter(bot => bot.rating).slice(0, 5);
+  const depths = rated.map(bot => botSearch(bot, bot.skill).depth);
+  assert(depths.every((depth, index) => !index || depth >= depths[index - 1]));
+  assert(depths.at(-1) > depths[0]);
+});
+
+test("advanced opponents keep a winning move when the other legal options lose for either color", () => {
+  for (const fen of [
+    "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+    "rnb1k1nr/pppp1ppp/8/2b1p3/4P2q/2N2N2/PPPP1PPP/R1BQKB1R b KQkq - 4 4",
+  ]) {
+    const board = new Chess(fen);
+    const legal = board.moves({verbose:true});
+    const mates = legal.filter(move => move.san.endsWith("#"));
+    assert.equal(mates.length, 1);
+    const mate = uci(mates[0]);
+    const wrong = uci(legal.find(move => uci(move) !== mate));
+    const data = {bestmove:mate, lines:[{pv:[mate], mate:board.turn() === "w" ? 1 : -1}, {pv:[wrong], score:0}]};
+    assert.equal(chooseOpponentMove(board, data, {rating:1800}, () => 0), mate);
+    assert.notEqual(chooseOpponentMove(board, data, {rating:300}, () => 0), mate);
+  }
 });
 
 test("review evidence gates special classes and uses both perspectives", () => {

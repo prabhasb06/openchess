@@ -45,6 +45,16 @@ The installed build kept Stockfish running during four cancelled Analysis search
 
 The local ARM64 update `downloads/chess-local-2.6.8-offline.apk` uses `local.chess.app`, Android version code 20, and the original Chess Local signing certificate. Its SHA-256 is `19adbba7f8882088bc1af2ad0a82b6e173db7f78a13bb0daae1aa2c15131d636`. Android runtime verification used the emulator.
 
+## Bot strength update in 2.6.9
+
+The Stockfish slider applies its selected engine skill and gives stronger levels more search time. Rated opponents use their profile skill to set search depth. Beginner profiles still sample from the full legal move list. Advanced profiles consider only Stockfish alternatives close to the best expected score.
+
+The calibration sampled 120 seeded selections per bot in eight positions across both colors, covering openings, attacks, and pawn endings. Pebble, Signal, and Vector conceded 26.89, 7.45, and 0.05 expected-score points on average against the Stockfish reference. On the two attack positions, Vector's costly-move counts fell from 7 of 120 to 0 of 120 for each color. These samples describe the bot policies in this position set. Displayed ratings remain approximate.
+
+All 25 source tests passed. The Android emulator received the slider's minimum and maximum skill values and searched to depth 16 at maximum. The signed in-place upgrade preserved the test profile's saved data. Offline checks covered bot play from both sides, coach play, hints, and Chess960 Game Review.
+
+The local ARM64 update `downloads/chess-local-2.6.9-offline.apk` uses `local.chess.app`, Android version code 21, and the original Chess Local signing certificate. Its SHA-256 is `85f6cf143f02f778ded816f353b84c73f85dd6c5356890b45c824137087b6865`.
+
 ## Run the checks
 
 Launch the debuggable emulator build with the package ID `local.chess.openchess.smoke`. Set `OPENCHESS_TEST_SERIAL` or `OPENCHESS_TEST_PACKAGE` if your emulator uses a different serial or package ID.
@@ -54,6 +64,7 @@ npm test
 node tests/android-emulator-smoke.mjs
 node tests/android-emulator-smoke.mjs --extended
 node tests/android-emulator-smoke.mjs --benchmark-review
+node tests/android-emulator-smoke.mjs --stockfish-slider
 node tests/android-emulator-smoke.mjs --pgn-files
 node tests/android-emulator-smoke.mjs --lan
 ```

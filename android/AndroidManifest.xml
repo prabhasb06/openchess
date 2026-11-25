@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="local.chess.app" android:versionCode="20" android:versionName="2.6.8">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="local.chess.app" android:versionCode="21" android:versionName="2.6.9">
   <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35" />
   <uses-permission android:name="android.permission.INTERNET" />
   <application android:label="Chess Local" android:icon="@drawable/icon" android:allowBackup="false" android:extractNativeLibs="true" android:networkSecurityConfig="@xml/network_security_config" android:theme="@android:style/Theme.Material.NoActionBar" android:enableOnBackInvokedCallback="true">

@@ -304,20 +304,78 @@ async function checkCoach() {
   assert.match((await read("chess-local-reviews-v1"))[0].pgn, /\[Coach "Vale"\]/);
   console.log("Coach selection, two-stage hints, feedback, Back, resume, and review passed");
 }
-async function checkBot(side, opponent = "Pebble, 300") {
+async function selectBot(opponent) {
   await goHome();
   await button("Play").click();
   await button("Play Bots").click();
   await button(opponent).click();
+}
+
+async function startBot(side) {
   await button(side === "w" ? "Play as White" : "Play as Black").click();
   await button("Play").or(button("New Game")).click();
   await settle("game");
+}
+
+async function checkBot(side, opponent = "Pebble, 300") {
+  await selectBot(opponent);
+  await startBot(side);
   if (side === "w") await tapMove("e2", "e4");
   await page.waitForFunction(color => {
     const game = JSON.parse(localStorage.getItem("chess-local-mobile-sessions-v1")).bot;
     return game?.side === color && game.moves.length === (color === "w" ? 2 : 1);
   }, side);
   console.log(opponent + " replied with the human playing " + (side === "w" ? "White" : "Black"));
+}
+
+async function checkStockfishSlider() {
+  await page.evaluate(() => {
+    const bridge = window.ChessLocalAndroid;
+    const original = window.__chessNativeResponse;
+    const requests = new Map();
+    window.__sliderSearches = [];
+    window.__chessNativeResponse = (id, response) => {
+      const search = requests.get(id);
+      if (search && response.status === 200) {
+        window.__sliderSearches.push({search, depth: JSON.parse(response.body).depth});
+      }
+      requests.delete(id);
+      original(id, response);
+    };
+    const descriptor = Object.getOwnPropertyDescriptor(window, "ChessLocalAndroid");
+    Object.defineProperty(window, "ChessLocalAndroid", { ...descriptor, value: new Proxy(bridge, {
+      get(target, key) {
+        if (key === "request") return (id, path, method, body) => {
+          if (path === "/api/engine" && body && JSON.parse(body).purpose === "bot") requests.set(id, JSON.parse(body));
+          target.request(id, path, method, body);
+        };
+        const member = target[key];
+        return typeof member === "function" ? member.bind(target) : member;
+      },
+    }) });
+  });
+  try {
+    for (const [index, [level, key]] of [[0, "Home"], [20, "End"]].entries()) {
+      await selectBot("Stockfish");
+      const slider = page.getByRole("slider", { name: "Engine strength" });
+      await slider.press(key);
+      assert.equal(await slider.inputValue(), String(level));
+      await startBot("b");
+      await page.waitForFunction(index => window.__sliderSearches.length > index, index);
+      await page.waitForFunction(level => {
+        const game = JSON.parse(localStorage.getItem("chess-local-mobile-sessions-v1")).bot;
+        return game.bot?.skill === level && game.moves.length === 1;
+      }, level);
+    }
+    const [minimum, maximum] = await page.evaluate(() => window.__sliderSearches);
+    assert.deepEqual([minimum.search.skill, maximum.search.skill], [0, 20]);
+    assert.equal(maximum.search.depth, undefined);
+    assert(maximum.search.movetime > minimum.search.movetime);
+    assert(maximum.depth > 5);
+    console.log("The Stockfish slider reached the native engine at levels 0 and 20. Maximum searched to depth " + maximum.depth + ".");
+  } finally {
+    await page.reload({ waitUntil: "domcontentloaded" });
+  }
 }
 async function checkTraining() {
   await goHome();
@@ -578,6 +636,9 @@ try {
     await verifyUpgradeState(saveState);
   } else if (process.argv.includes("--benchmark-review")) {
     await benchmarkReview();
+    assert.deepEqual(errors, []);
+  } else if (process.argv.includes("--stockfish-slider")) {
+    await checkStockfishSlider();
     assert.deepEqual(errors, []);
   } else if (process.argv.includes("--pgn-files")) {
     await checkPgnFiles();
