@@ -1,4 +1,6 @@
-# Chess Local 2.6.6 Android checkpoints
+# Chess Local Android checkpoints
+
+## 2.6.6 release
 
 The release target is a signed, standalone Android build from this repository.
 
@@ -28,6 +30,21 @@ After cancellation, the Android UI reused all six completed Stockfish searches o
 
 The local ARM64 update `downloads/chess-local-2.6.7-offline.apk` uses `local.chess.app`, Android version code 19, and the original Chess Local signing certificate. Its SHA-256 is `c1df99d849647f54da52b3d902c6f6cccb603b1d584c8a50709ad70cbfec3ee2`. Runtime checks ran on the emulator.
 
+## Game Review performance target in 2.6.8
+
+The same fixed 40-move game ran on the Android 17 x86-64 emulator in airplane mode with Wi-Fi disabled. The benchmark warms Stockfish on a separate game, then clears the saved report and reloads the WebView before each timed review.
+
+| Build | Run 1 | Run 2 | Run 3 | Median |
+| --- | --- | --- | --- | --- |
+| 2.6.6 | 23.917 s | 23.342 s | 23.082 s | 23.342 s |
+| 2.6.8 | 14.794 s | 15.489 s | 14.795 s | 14.795 s |
+
+The median fell by 36.62%, exceeding the 30% target. Game Review queues one extra request on the on-device engine, shares completed evaluations between adjacent positions, and escalates uncertain tactical searches. All 23 source tests passed. An in-place emulator update from 2.6.7 preserved the saved games, settings, bot session, training progress, and reviews.
+
+The installed build kept Stockfish running during four cancelled Analysis searches. Game Review cancelled its outstanding work, reused 13 completed searches on retry, and finished on the same Stockfish process. The emulator also verified all ten move-classification badges, the Brilliant queen sacrifice `Qg8+`, and legal Chess960 continuations.
+
+The local ARM64 update `downloads/chess-local-2.6.8-offline.apk` uses `local.chess.app`, Android version code 20, and the original Chess Local signing certificate. Its SHA-256 is `19adbba7f8882088bc1af2ad0a82b6e173db7f78a13bb0daae1aa2c15131d636`. Android runtime verification used the emulator.
+
 ## Run the checks
 
 Launch the debuggable emulator build with the package ID `local.chess.openchess.smoke`. Set `OPENCHESS_TEST_SERIAL` or `OPENCHESS_TEST_PACKAGE` if your emulator uses a different serial or package ID.
@@ -41,4 +58,4 @@ node tests/android-emulator-smoke.mjs --pgn-files
 node tests/android-emulator-smoke.mjs --lan
 ```
 
-Use `--fresh` on a clean test install. For a signed upgrade, run the smoke suite on 2.6.5, capture the populated state with `--save-state`, then install 2.6.6 over the same test package and run `--check-state`. The LAN check temporarily enables the emulator network and uses the PC's local engine. Set `STOCKFISH_PATH` to the existing Windows executable for the Node and LAN checks.
+Use `--fresh` on a clean test install. For a signed upgrade, run the smoke suite on the earlier build, capture the populated state with `--save-state`, then install the newer build over the same test package and run `--check-state`. Set `OPENCHESS_TEST_STATE_FILE` to keep upgrade snapshots for different version pairs. The LAN check temporarily enables the emulator network and uses the PC's local engine. Set `STOCKFISH_PATH` to the existing Windows executable for the Node and LAN checks.

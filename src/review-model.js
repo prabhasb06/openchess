@@ -1,5 +1,5 @@
 import { createRulesGame, readRulesPgn } from './chess-rules.js';
-import { apiFetch } from './mobile-api.js';
+import { apiFetch, mobileServer } from './mobile-api.js';
 
 export const REVIEW_VERSION = 2;
 export const REVIEW_CLASSES = ['Brilliant', 'Great', 'Best', 'Excellent', 'Good', 'Inaccuracy', 'Mistake', 'Miss', 'Blunder', 'Forced'];
@@ -47,6 +47,7 @@ export function classifyMove(move, before, after, legalCount, evidence = {}) {
 const pieceValue = {p: 1, n: 3, b: 3, r: 5, q: 9, k: 0};
 const pieceName = {p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen'};
 const moveUci = move => move.from + move.to + (move.promotion || '');
+const gradeBoundaries = [.02, .05, .10, .20];
 
 export function sacrificeCapture(move, variant, board) {
   if (move.castle || move.promotion || pieceValue[move.piece] < 3) return null;
@@ -75,9 +76,19 @@ function verifiesContinuation(result, fen, prefix, variant) {
     sanLine(fen, line.pv.slice(0, length), variant).length === length;
 }
 
-function explanation(move, grading, bestSan, after, board) {
+function stableGrade(first, refined, after) {
+  const uncertainty = .012 + Math.abs(refined - first);
+  const loss = Math.max(0, refined - after);
+  return gradeBoundaries.every(boundary => Math.abs(loss - boundary) > uncertainty);
+}
+
+function resultExplanation(move, board) {
   if (board.isCheckmate()) return `${move.san} delivers checkmate.`;
   if (board.isDraw()) return `${move.san} reaches a drawn position${board.isStalemate() ? ' by stalemate' : board.isThreefoldRepetition() ? ' by repetition' : board.isInsufficientMaterial() ? ' with insufficient material' : ''}.`;
+  return null;
+}
+
+function explanation(move, grading, bestSan, after) {
   if (grading.classification === 'Forced') return `${move.san} was the only legal move in this position.`;
   if (grading.classification === 'Brilliant') return `${move.san} offers a ${pieceName[move.piece]}. The engine checked the capture and found enough compensation.`;
   if (grading.classification === 'Great') return `${move.san} was critical. The other moves give up a substantial part of the position’s value.`;
@@ -105,10 +116,42 @@ if (typeof window !== 'undefined') {
   window.addEventListener('chess-engine-configured', () => { searchCaches = new WeakMap(); });
 }
 
-export async function runGameReview(pgn, {
-  signal, onProgress = () => {}, movetime = 65, request = apiFetch, adaptive = request === apiFetch, reuse = false,
+async function orderedResults(total, width, signal, evaluate, report) {
+  const pending = [];
+  let queued = 0;
+  for (let index = 0; index < total; index++) {
+    aborted(signal);
+    // Queue the next request while the native engine works on the current one.
+    // Both requests still share the same single Stockfish process.
+    while (pending.length < width && queued < total) {
+      pending.push(evaluate(queued++).then(value => ({value}), error => ({error})));
+    }
+    const result = await pending.shift();
+    aborted(signal);
+    if ('error' in result) throw result.error;
+    report(result.value, index);
+  }
+}
+
+export async function runGameReview(pgn, {signal, ...options} = {}) {
+  aborted(signal);
+  const controller = new AbortController();
+  const cancel = () => controller.abort();
+  signal?.addEventListener('abort', cancel, {once:true});
+  try {
+    return await evaluateReview(pgn, {...options, signal:controller.signal});
+  } finally {
+    signal?.removeEventListener('abort', cancel);
+    cancel();
+  }
+}
+
+async function evaluateReview(pgn, {
+  signal, onProgress = () => {}, movetime = 50, request = apiFetch, adaptive = request === apiFetch, reuse = false,
+  prefetch = request === apiFetch && mobileServer()?.onDevice,
 } = {}) {
   const parsed = parseReviewPgn(pgn), board = createRulesGame(parsed.base, parsed.variant), evaluations = [];
+  const width = prefetch ? 2 : 1;
   let completedSearches;
   if (reuse) {
     completedSearches = searchCaches.get(request);
@@ -135,42 +178,61 @@ export async function runGameReview(pgn, {
       return data;
     }
   }
+  async function verify(fen, multiPv, needsMore, rootMove) {
+    const result = await search(fen, 150, multiPv, rootMove);
+    return needsMore(result) ? search(fen, 425, multiPv, rootMove) : result;
+  }
   const total = parsed.positions.length;
   aborted(signal);
   onProgress({ phase: 'positions', completed: 0, total, percent: 0 });
-  for (let index = 0; index < total; index++) {
+  await orderedResults(total, width, signal, async index => {
     aborted(signal);
     if (index) board.move(parsed.moves[index - 1]);
-    let result;
     if (board.isGameOver()) {
-      result = { evaluation: board.isCheckmate() ? null : 0, mate: board.isCheckmate() ? 0 : null, winner: board.isCheckmate() ? (board.turn() === 'w' ? 'b' : 'w') : null, bestmove: null, depth: 0, lines: [] };
-    } else result = await search(board.fen(), movetime);
-    aborted(signal);
+      const mate = board.isCheckmate();
+      return { evaluation: mate ? null : 0, mate: mate ? 0 : null, winner: mate ? (board.turn() === 'w' ? 'b' : 'w') : null, bestmove: null, depth: 0, lines: [] };
+    }
+    return search(board.fen(), movetime);
+  }, (result, index) => {
     evaluations.push(result);
     onProgress({ phase: 'positions', completed: index + 1, total, percent: Math.round(75 * (index + 1) / total) });
-  }
+  });
   const counts = { w: Object.fromEntries(REVIEW_CLASSES.map(c => [c, 0])), b: Object.fromEntries(REVIEW_CLASSES.map(c => [c, 0])) };
   const replay = createRulesGame(parsed.base, parsed.variant);
   const moves = [];
+  const refinements = [];
   const moveCount = parsed.moves.length;
   onProgress({ phase: 'moves', completed: 0, total: moveCount, percent: 75 });
-  for (const [index, move] of parsed.moves.entries()) {
+  await orderedResults(moveCount, width, signal, async index => {
     aborted(signal);
+    const move = parsed.moves[index];
     const legalCount = replay.moves().length;
     replay.move(move);
+    const ending = resultExplanation(move, replay);
     let beforeEval = evaluations[index], afterEval = evaluations[index + 1];
     const evidence = {};
     if (adaptive && legalCount > 1 && beforeEval.bestmove && afterEval.bestmove) {
       const first = expectedScore(beforeEval, move.color), second = expectedScore(afterEval, move.color);
       const loss = first - second;
       const played = moveUci(move);
-      const nearBest = beforeEval.bestmove === played || loss < .09;
-      const possibleGreat = nearBest && first >= .53 && first < .92;
+      const preferred = beforeEval.bestmove === played;
+      const nearBest = preferred || loss < .09;
+      const possibleGreat = (preferred || loss < .035) && first >= .53 && first < .92;
       const possibleMiss = first >= .76 && second < .68;
-      const borderline = [.05, .10, .20].some(bound => Math.abs(loss - bound) < .012);
+      const borderline = !preferred && gradeBoundaries.some(bound => bound >= .05 && Math.abs(loss - bound) < .012);
       const candidate = nearBest && second >= .30 ? sacrificeCapture(move, parsed.variant, replay) : null;
       if (candidate || possibleGreat || possibleMiss || borderline) {
-        beforeEval = await search(move.before, candidate ? 425 : 105, 2);
+        const refine = candidate ? verify(move.before, 2, result => {
+          const [top, alternative] = result.lines ?? [];
+          if (!(top?.depth >= 9) || !alternative?.pv?.[0] || !(alternative.depth >= 8) ||
+              Math.abs(top.depth - alternative.depth) > 2) return true;
+          const alternativeScore = expectedScore({evaluation: alternative.score, mate: alternative.mate}, move.color);
+          const score = expectedScore(result, move.color);
+          return Math.abs(alternativeScore - .90) < .045 ||
+            (Math.abs(score - second - .02) < .022 && result.bestmove !== played);
+        }) : search(move.before, possibleMiss || borderline ? 95 : 70, possibleGreat ? 2 : 1);
+        refinements[index] = refine;
+        beforeEval = await refine;
         const other = beforeEval.lines?.find(line => line.pv?.[0] !== played);
         if (other) evidence.alternative = expectedScore({evaluation: other.score, mate: other.mate}, move.color);
         const best = beforeEval.bestmove === played;
@@ -181,10 +243,32 @@ export async function runGameReview(pgn, {
             verifiesContinuation(beforeEval, move.before, [played, capture], parsed.variant)) {
           evidence.sacrifice = true;
         } else {
-          if (!best || capture) afterEval = await search(move.after, capture ? 425 : 100);
+          // The next move's refined starting position is also this move's end position.
+          const checkAfter = !best && (possibleMiss || borderline || !stableGrade(first, start, second));
+          const adjacent = capture || checkAfter ? refinements[index + 1] : null;
+          if (adjacent) {
+            const result = await adjacent;
+            if (result.depth >= 12) afterEval = result;
+          }
+          if (capture) {
+            const needsMore = result => {
+              const score = expectedScore(result, move.color);
+              return !(result.depth >= 9) || Math.abs(score - .40) < .06 ||
+                (Math.abs(start - score - .02) < .025 && Math.abs(score - second) > .04);
+            };
+            if (afterEval === evaluations[index + 1] || needsMore(afterEval))
+              afterEval = await verify(move.after, 1, needsMore);
+          } else if (checkAfter && afterEval === evaluations[index + 1]) {
+            afterEval = await search(move.after, 100);
+          }
           const finish = expectedScore(afterEval, move.color);
           if (capture && finish >= .40 && start - finish < .02) {
-            const taken = afterEval.bestmove === capture ? afterEval : await search(move.after, 425, 1, capture);
+            const taken = afterEval.bestmove === capture ? afterEval : await verify(move.after, 1, result => {
+              const score = expectedScore(result, move.color);
+              const sound = score >= .64 && verifiesContinuation(result, move.after, [capture], parsed.variant);
+              const unsound = score <= .32 && result.depth >= 12;
+              return result.bestmove !== capture || !(sound || unsound);
+            }, capture);
             const compensation = expectedScore(taken, move.color);
             if (taken.bestmove === capture && compensation >= .45) {
               if (compensation >= .60 && verifiesContinuation(taken, move.after, [capture], parsed.variant)) {
@@ -205,10 +289,12 @@ export async function runGameReview(pgn, {
     const grading = classifyMove(move, beforeEval, afterEval, legalCount, evidence);
     const bestLine = sanLine(move.before, beforeEval.lines?.[0]?.pv || [beforeEval.bestmove].filter(Boolean), parsed.variant);
     const bestSan = bestLine[0] || '';
-    counts[move.color][grading.classification]++;
-    moves.push({ ...move, ...grading, bestmove: beforeEval.bestmove, bestSan, bestLine, beforeEval, afterEval, explanation: explanation(move, grading, bestSan, afterEval, replay) });
+    return { ...move, ...grading, bestmove: beforeEval.bestmove, bestSan, bestLine, beforeEval, afterEval, explanation: ending ?? explanation(move, grading, bestSan, afterEval) };
+  }, (move, index) => {
+    counts[move.color][move.classification]++;
+    moves.push(move);
     onProgress({ phase: 'moves', completed: index + 1, total: moveCount, percent: 75 + Math.round(24 * (index + 1) / moveCount) });
-  }
+  });
   const accuracy = Object.fromEntries(['w', 'b'].map(color => {
     const own = moves.filter(m => m.color === color);
     // Transparent local estimate, not Chess.com's proprietary CAPS2 algorithm.

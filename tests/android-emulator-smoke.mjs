@@ -340,7 +340,7 @@ async function checkTraining() {
 }
 
 async function verifyUpgradeState(save) {
-  const stateFile = join("android", "build", "smoke-state-before-upgrade.json");
+  const stateFile = process.env.OPENCHESS_TEST_STATE_FILE || join("android", "build", "smoke-state-before-upgrade.json");
   await goHome();
   const keys = ["games", "settings", "mobile-sessions-v1", "solved", "progress", "reviews-v1"];
   const state = Object.fromEntries(await Promise.all(keys.map(async key => [key, await read("chess-local-" + key)])));
@@ -398,6 +398,9 @@ async function checkRotationAndTrainingBack() {
 
 async function checkWarmCancellation() {
   await goHome();
+  await page.evaluate(() => localStorage.removeItem("chess-local-mobile-analysis-v1"));
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await settle("home");
   await page.evaluate(() => { location.hash = "analysis"; });
   await settle("analysis");
   await tapMove("e2", "e4");
