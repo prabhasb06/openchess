@@ -68,7 +68,7 @@ test("review requests and SAN suggestions keep UCI960 king-to-rook semantics", a
 test("real Stockfish reviews a castled Chess960 game with legal continuations and correct original history", async () => {
   const original=stationary().pgn(), progress=[];
   const report=await runGameReview(original,{movetime:50,onProgress:value=>progress.push(value),request:async(_,options)=>({ok:true,status:200,json:()=>analyzePosition(JSON.parse(options.body),options.signal)})});
-  assert.equal(report.variant,"chess960");assert.equal(report.pgn,original);assert.equal(report.moves.length,4);assert.equal(progress.at(-1).completed,5);
+  assert.equal(report.variant,"chess960");assert.equal(report.pgn,original);assert.equal(report.moves.length,4);assert.equal(progress.at(-1).phase,"complete");
   assert.equal(report.moves[0].castle,"k");assert.equal(report.moves[0].to,"h1");
   for(const move of report.moves){const board=createRulesGame(move.before,report.variant);for(const san of move.bestLine)assert(board.move(san));}
   assert.equal(Object.values(report.counts.w).reduce((a,b)=>a+b,0),2);assert.equal(Object.values(report.counts.b).reduce((a,b)=>a+b,0),2);

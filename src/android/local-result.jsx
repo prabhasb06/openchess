@@ -77,7 +77,7 @@ export function useResultAnalysis(pgn, enabled) {
   const [report, setReport] = useState(null);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
-  const [progress, setProgress] = useState({ completed: 0, total: 1 });
+  const [progress, setProgress] = useState({ phase: "positions", completed: 0, total: 1, percent: 0 });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     const id = ++generation.current,
@@ -100,7 +100,7 @@ export function useResultAnalysis(pgn, enabled) {
     }
     if (!enabled) return () => abort.abort();
     setStatus("running");
-    setProgress({ completed: 0, total: parsed.positions.length });
+    setProgress({ phase: "positions", completed: 0, total: parsed.positions.length, percent: 0 });
     runGameReview(parsed.pgn, {
       signal: abort.signal,
       onProgress: (value) => {
@@ -305,11 +305,12 @@ export function NativeLocalResult({
               <div className="am-local-result-progress" role="status">
                 <progress
                   aria-label="Quick analysis progress"
-                  value={progress.completed}
-                  max={progress.total}
+                  value={progress.percent}
+                  max="100"
                 />
                 <span>
-                  Analyzing {progress.completed}/{progress.total}
+                  {progress.phase === "positions" ? "Analyzing positions" : "Checking moves"}
+                  {" · "}{progress.completed}/{progress.total}
                 </span>
               </div>
             ) : status === "error" ? (

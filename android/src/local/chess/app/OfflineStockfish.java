@@ -1,5 +1,6 @@
 package local.chess.app;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,7 +21,8 @@ import org.json.JSONObject;
 
 /** Runs the bundled Stockfish executable over UCI, with one search at a time. */
 public final class OfflineStockfish implements AutoCloseable {
-  private static final long POLL_MS = 12;
+  private static final long CANCEL_CHECK_MS = 50;
+  private static final long STOP_GRACE_MS = 400;
   private static final long QUEUE_WAIT_MS = 4000;
   private static final long STARTUP_ALLOWANCE_MS = 25000;
   private static final long SEARCH_ALLOWANCE_MS = 10000;
@@ -31,17 +34,24 @@ public final class OfflineStockfish implements AutoCloseable {
   private static final Pattern LINE = Pattern.compile("\\bpv (.+)$");
 
   public static final class SearchException extends IOException {
+    private static final long serialVersionUID = 1L;
     public final int status;
+    private final boolean reusable;
 
     SearchException(int status, String message) {
+      this(status, message, false);
+    }
+
+    SearchException(int status, String message, boolean reusable) {
       super(message);
       this.status = status;
+      this.reusable = reusable;
     }
   }
 
   private final File executable;
   private final Semaphore slot = new Semaphore(1, true);
-  private final AtomicReference<Process> active = new AtomicReference<>();
+  private final AtomicReference<EngineProcess> active = new AtomicReference<>();
   private String previousVariant;
   private volatile boolean closed;
 
@@ -69,39 +79,42 @@ public final class OfflineStockfish implements AutoCloseable {
     checkCancelled(cancelled);
     if (!available()) throw new SearchException(503, "On-device Stockfish is unavailable.");
     long queueDeadline = afterMillis(QUEUE_WAIT_MS);
-    while (!slot.tryAcquire(POLL_MS, TimeUnit.MILLISECONDS)) {
+    while (!slot.tryAcquire(CANCEL_CHECK_MS, TimeUnit.MILLISECONDS)) {
       checkCancelled(cancelled);
       if (System.nanoTime() >= queueDeadline)
         throw new SearchException(429, "On-device Stockfish is busy. Try again in a moment.");
     }
 
-    Process child = active.get();
-    boolean completed = false;
+    EngineProcess child = null;
+    boolean reusable = false;
     try {
       checkCancelled(cancelled);
-      boolean fresh = child == null || !child.isAlive();
+      child = active.get();
+      boolean fresh = child == null || !child.process.isAlive();
       if (fresh) {
-        child = new ProcessBuilder(executable.getPath())
+        if (child != null) child.close();
+        child = new EngineProcess(new ProcessBuilder(executable.getPath())
             .directory(executable.getParentFile())
             .redirectErrorStream(true)
-            .start();
+            .start());
         active.set(child);
       }
       checkCancelled(cancelled);
       JSONObject result = runSearch(child, fresh, search, cancelled);
-      completed = true;
+      reusable = true;
       return result;
     } catch (SearchException failure) {
+      reusable = failure.reusable;
       throw failure;
     } catch (IOException failure) {
       checkCancelled(cancelled);
       throw new SearchException(503, "On-device Stockfish could not complete the search.");
     } finally {
       try {
-        if (!completed && child != null) {
-          child.destroyForcibly();
+        if (!reusable && child != null) {
           active.compareAndSet(child, null);
-          child.waitFor(250, TimeUnit.MILLISECONDS);
+          child.close();
+          child.process.waitFor(250, TimeUnit.MILLISECONDS);
         }
       } catch (InterruptedException interrupted) {
         Thread.currentThread().interrupt();
@@ -113,79 +126,97 @@ public final class OfflineStockfish implements AutoCloseable {
 
   @Override public void close() {
     closed = true;
-    Process child = active.getAndSet(null);
-    if (child != null) child.destroyForcibly();
+    EngineProcess child = active.getAndSet(null);
+    if (child != null) child.close();
   }
 
-  private JSONObject runSearch(Process child, boolean fresh, Search search, BooleanSupplier cancelled) throws Exception {
+  private JSONObject runSearch(EngineProcess child, boolean fresh, Search search, BooleanSupplier cancelled) throws Exception {
     long deadline = afterMillis(search.moveTime + (fresh ? STARTUP_ALLOWANCE_MS : SEARCH_ALLOWANCE_MS));
+    SearchOutput lines = new SearchOutput(child, cancelled, deadline);
+    OutputStream input = child.process.getOutputStream();
+    if (fresh) {
+      send(input, "uci");
+      lines.await("uciok");
+      send(input, "setoption name Threads value 1", "setoption name Hash value 16");
+    }
+    send(input,
+        "setoption name Skill Level value " + search.skill,
+        "setoption name MultiPV value " + search.multiPv,
+        "setoption name UCI_Chess960 value " + search.variant.equals("chess960"));
+    if (fresh || !search.variant.equals(previousVariant)) send(input, "ucinewgame");
+    previousVariant = search.variant;
+    send(input, "isready");
+    try {
+      lines.await("readyok");
+    } catch (SearchException failure) {
+      if (failure.status == 499 && !closed && !Thread.currentThread().isInterrupted()) {
+        lines.drain("readyok", false);
+        throw new SearchException(499, failure.getMessage(), true);
+      }
+      throw failure;
+    }
+    if (cancelled.getAsBoolean()) throw new SearchException(499, "The on-device engine search was cancelled.", true);
+    send(input, "position fen " + search.fen, "go movetime " + search.moveTime
+        + (search.depth == 0 ? "" : " depth " + search.depth)
+        + (search.rootMove == null ? "" : " searchmoves " + search.rootMove));
+    try {
+      return readSearch(lines, search);
+    } catch (SearchException failure) {
+      if (failure.status == 499 && !closed && !Thread.currentThread().isInterrupted()) {
+        send(input, "stop");
+        lines.drain("bestmove ", true);
+        throw new SearchException(499, failure.getMessage(), true);
+      }
+      throw failure;
+    }
+  }
+
+  private JSONObject readSearch(SearchOutput lines, Search search) throws Exception {
     TreeMap<Integer, JSONObject> variations = new TreeMap<>();
     Integer terminalMate = null;
-    {
-      InputStream output = child.getInputStream();
-      OutputStream input = child.getOutputStream();
-      EngineOutput lines = new EngineOutput(child, output, cancelled, deadline);
-      if (fresh) {
-        send(input, "uci");
-        lines.await("uciok");
-        send(input, "setoption name Threads value 1", "setoption name Hash value 16");
+    for (String line = lines.next(); ; line = lines.next()) {
+      if (line.startsWith("bestmove ")) {
+        String bestMove = line.split("\\s+", 3)[1];
+        if (bestMove.equals("(none)") || bestMove.equals("0000")) bestMove = null;
+        if (bestMove != null && !MOVE.matcher(bestMove).matches())
+          throw new SearchException(503, "On-device Stockfish returned an invalid move.");
+        JSONObject best = variations.get(1);
+        Object mate = best == null ? terminalMate : best.opt("mate");
+        Object evaluation = best == null ? (terminalMate == null ? 0.0 : JSONObject.NULL) : best.opt("score");
+        return new JSONObject()
+            .put("bestmove", bestMove == null ? JSONObject.NULL : bestMove)
+            .put("evaluation", evaluation)
+            .put("mate", mate == null ? JSONObject.NULL : mate)
+            .put("depth", best == null ? 0 : best.optInt("depth"))
+            .put("lines", new JSONArray(variations.values()))
+            .put("engine", "Stockfish")
+            .put("variant", search.variant)
+            .put("scorePerspective", "white");
       }
-      send(input,
-          "setoption name Skill Level value " + search.skill,
-          "setoption name MultiPV value " + search.multiPv,
-          "setoption name UCI_Chess960 value " + search.variant.equals("chess960"));
-      if (fresh || !search.variant.equals(previousVariant)) send(input, "ucinewgame");
-      previousVariant = search.variant;
-      send(input, "isready");
-      lines.await("readyok");
-      send(input, "position fen " + search.fen, "go movetime " + search.moveTime
-          + (search.depth == 0 ? "" : " depth " + search.depth)
-          + (search.rootMove == null ? "" : " searchmoves " + search.rootMove));
-
-      for (String line = lines.next(); ; line = lines.next()) {
-        if (line.startsWith("bestmove ")) {
-          String bestMove = line.split("\\s+", 3)[1];
-          if (bestMove.equals("(none)") || bestMove.equals("0000")) bestMove = null;
-          if (bestMove != null && !MOVE.matcher(bestMove).matches())
-            throw new SearchException(503, "On-device Stockfish returned an invalid move.");
-          JSONObject best = variations.get(1);
-          Object mate = best == null ? terminalMate : best.opt("mate");
-          Object evaluation = best == null ? (terminalMate == null ? 0.0 : JSONObject.NULL) : best.opt("score");
-          return new JSONObject()
-              .put("bestmove", bestMove == null ? JSONObject.NULL : bestMove)
-              .put("evaluation", evaluation)
-              .put("mate", mate == null ? JSONObject.NULL : mate)
-              .put("depth", best == null ? 0 : best.optInt("depth"))
-              .put("lines", new JSONArray(variations.values()))
-              .put("engine", "Stockfish")
-              .put("variant", search.variant)
-              .put("scorePerspective", "white");
-        }
-        if (!line.startsWith("info depth ")) continue;
-        Matcher score = SCORE.matcher(line);
-        if (!score.find()) continue;
-        int value = Integer.parseInt(score.group(2)) * search.sign;
-        boolean mate = score.group(1).equals("mate");
-        Matcher pv = LINE.matcher(line);
-        int depth = readNumber(DEPTH, line, 0);
-        if (!pv.find()) {
-          if (depth == 0 && mate) terminalMate = value;
-          continue;
-        }
-        int index = readNumber(MULTI_PV, line, 1);
-        if (index < 1 || index > search.multiPv) continue;
-        JSONArray moves = new JSONArray();
-        for (String move : pv.group(1).trim().split("\\s+")) {
-          if (!MOVE.matcher(move).matches())
-            throw new SearchException(503, "On-device Stockfish returned an invalid move.");
-          moves.put(move);
-        }
-        variations.put(index, new JSONObject()
-            .put("pv", moves)
-            .put("score", mate ? JSONObject.NULL : value / 100.0)
-            .put("mate", mate ? value : JSONObject.NULL)
-            .put("depth", depth));
+      if (!line.startsWith("info depth ")) continue;
+      Matcher score = SCORE.matcher(line);
+      if (!score.find()) continue;
+      int value = Integer.parseInt(score.group(2)) * search.sign;
+      boolean mate = score.group(1).equals("mate");
+      Matcher pv = LINE.matcher(line);
+      int depth = readNumber(DEPTH, line, 0);
+      if (!pv.find()) {
+        if (depth == 0 && mate) terminalMate = value;
+        continue;
       }
+      int index = readNumber(MULTI_PV, line, 1);
+      if (index < 1 || index > search.multiPv) continue;
+      JSONArray moves = new JSONArray();
+      for (String move : pv.group(1).trim().split("\\s+")) {
+        if (!MOVE.matcher(move).matches())
+          throw new SearchException(503, "On-device Stockfish returned an invalid move.");
+        moves.put(move);
+      }
+      variations.put(index, new JSONObject()
+          .put("pv", moves)
+          .put("score", mate ? JSONObject.NULL : value / 100.0)
+          .put("mate", mate ? value : JSONObject.NULL)
+          .put("depth", depth));
     }
   }
 
@@ -208,19 +239,63 @@ public final class OfflineStockfish implements AutoCloseable {
       throw new SearchException(499, "The on-device engine search was cancelled.");
   }
 
-  /** Reads only bytes already available so cancellation never waits for a complete line. */
-  private final class EngineOutput {
-    private final Process child;
-    private final InputStream output;
+  private record OutputLine(String text, int bytes, String error) {}
+
+  /** A blocking reader stays with the process across searches. */
+  private static final class EngineProcess implements AutoCloseable {
+    private final Process process;
+    private final ArrayBlockingQueue<OutputLine> output = new ArrayBlockingQueue<>(64);
+    private final Thread reader;
+
+    EngineProcess(Process process) {
+      this.process = process;
+      reader = new Thread(this::readOutput, "stockfish-output");
+      reader.setDaemon(true);
+      reader.start();
+    }
+
+    private void readOutput() {
+      String failure = "On-device Stockfish stopped before completing the search.";
+      try (InputStream input = new BufferedInputStream(process.getInputStream())) {
+        ByteArrayOutputStream line = new ByteArrayOutputStream();
+        for (int value; (value = input.read()) != -1; ) {
+          if (value == '\n') {
+            output.put(new OutputLine(new String(line.toByteArray(), StandardCharsets.US_ASCII).trim(), line.size() + 1, null));
+            line.reset();
+          } else {
+            line.write(value);
+            if (line.size() > 16384) {
+              failure = "On-device Stockfish returned an oversized response.";
+              break;
+            }
+          }
+        }
+      } catch (IOException ignored) {
+      } catch (InterruptedException interrupted) {
+        Thread.currentThread().interrupt();
+        return;
+      }
+      try {
+        output.put(new OutputLine(null, 0, failure));
+      } catch (InterruptedException interrupted) {
+        Thread.currentThread().interrupt();
+      }
+    }
+
+    @Override public void close() {
+      reader.interrupt();
+      process.destroyForcibly();
+    }
+  }
+
+  private final class SearchOutput {
+    private final EngineProcess child;
     private final BooleanSupplier cancelled;
     private final long deadline;
-    private final byte[] chunk = new byte[4096];
-    private final ByteArrayOutputStream line = new ByteArrayOutputStream();
-    private int cursor, length, total;
+    private int total;
 
-    EngineOutput(Process child, InputStream output, BooleanSupplier cancelled, long deadline) {
+    SearchOutput(EngineProcess child, BooleanSupplier cancelled, long deadline) {
       this.child = child;
-      this.output = output;
       this.cancelled = cancelled;
       this.deadline = deadline;
     }
@@ -230,37 +305,29 @@ public final class OfflineStockfish implements AutoCloseable {
     }
 
     String next() throws Exception {
+      return next(cancelled, deadline);
+    }
+
+    void drain(String marker, boolean prefix) throws Exception {
+      long stopDeadline = afterMillis(STOP_GRACE_MS);
       while (true) {
-        checkCancelled(cancelled);
-        if (System.nanoTime() >= deadline)
+        String line = next(() -> false, stopDeadline);
+        if (prefix ? line.startsWith(marker) : line.equals(marker)) return;
+      }
+    }
+
+    private String next(BooleanSupplier isCancelled, long expires) throws Exception {
+      while (true) {
+        checkCancelled(isCancelled);
+        long remaining = expires - System.nanoTime();
+        if (remaining <= 0)
           throw new SearchException(504, "The on-device engine search timed out. Try again.");
-        if (cursor == length) {
-          int readable = output.available();
-          if (readable == 0) {
-            if (!child.isAlive() && output.available() == 0)
-              throw new SearchException(503, "On-device Stockfish stopped before completing the search.");
-            Thread.sleep(POLL_MS);
-            continue;
-          }
-          length = output.read(chunk, 0, Math.min(chunk.length, readable));
-          if (length < 0)
-            throw new SearchException(503, "On-device Stockfish stopped before completing the search.");
-          total += length;
-          if (total > OUTPUT_LIMIT)
-            throw new SearchException(503, "On-device Stockfish exceeded its output limit.");
-          cursor = 0;
-        }
-        while (cursor < length) {
-          byte value = chunk[cursor++];
-          if (value == '\n') {
-            String result = new String(line.toByteArray(), StandardCharsets.US_ASCII).trim();
-            line.reset();
-            return result;
-          }
-          line.write(value);
-          if (line.size() > 16384)
-            throw new SearchException(503, "On-device Stockfish returned an oversized response.");
-        }
+        OutputLine line = child.output.poll(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(CANCEL_CHECK_MS)), TimeUnit.NANOSECONDS);
+        if (line == null) continue;
+        if (line.error() != null) throw new SearchException(503, line.error());
+        total += line.bytes();
+        if (total > OUTPUT_LIMIT) throw new SearchException(503, "On-device Stockfish exceeded its output limit.");
+        return line.text();
       }
     }
   }

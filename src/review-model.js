@@ -114,7 +114,8 @@ export async function runGameReview(pgn, {
     }
   }
   const total = parsed.positions.length;
-  onProgress({ completed: 0, total });
+  aborted(signal);
+  onProgress({ phase: 'positions', completed: 0, total, percent: 0 });
   for (let index = 0; index < total; index++) {
     aborted(signal);
     if (index) board.move(parsed.moves[index - 1]);
@@ -124,12 +125,15 @@ export async function runGameReview(pgn, {
     } else result = await search(board.fen(), movetime);
     aborted(signal);
     evaluations.push(result);
-    onProgress({ completed: index + 1, total });
+    onProgress({ phase: 'positions', completed: index + 1, total, percent: Math.round(75 * (index + 1) / total) });
   }
   const counts = { w: Object.fromEntries(REVIEW_CLASSES.map(c => [c, 0])), b: Object.fromEntries(REVIEW_CLASSES.map(c => [c, 0])) };
   const replay = createRulesGame(parsed.base, parsed.variant);
   const moves = [];
+  const moveCount = parsed.moves.length;
+  onProgress({ phase: 'moves', completed: 0, total: moveCount, percent: 75 });
   for (const [index, move] of parsed.moves.entries()) {
+    aborted(signal);
     const legalCount = replay.moves().length;
     replay.move(move);
     let beforeEval = evaluations[index], afterEval = evaluations[index + 1];
@@ -161,11 +165,13 @@ export async function runGameReview(pgn, {
         }
       }
     }
+    aborted(signal);
     const grading = classifyMove(move, beforeEval, afterEval, legalCount, evidence);
     const bestLine = sanLine(move.before, beforeEval.lines?.[0]?.pv || [beforeEval.bestmove].filter(Boolean), parsed.variant);
     const bestSan = bestLine[0] || '';
     counts[move.color][grading.classification]++;
     moves.push({ ...move, ...grading, bestmove: beforeEval.bestmove, bestSan, bestLine, beforeEval, afterEval, explanation: explanation(move, grading, bestSan, afterEval, replay) });
+    onProgress({ phase: 'moves', completed: index + 1, total: moveCount, percent: 75 + Math.round(24 * (index + 1) / moveCount) });
   }
   const accuracy = Object.fromEntries(['w', 'b'].map(color => {
     const own = moves.filter(m => m.color === color);
@@ -173,5 +179,8 @@ export async function runGameReview(pgn, {
     const value = own.length ? own.reduce((sum, m) => sum + 100 * Math.exp(-3 * m.loss), 0) / own.length : null;
     return [color, value === null ? null : Math.round(value * 10) / 10];
   }));
-  return { ...parsed, version: REVIEW_VERSION, moves, accuracy, counts, evaluations, movetime, createdAt: new Date().toISOString() };
+  const report = { ...parsed, version: REVIEW_VERSION, moves, accuracy, counts, evaluations, movetime, createdAt: new Date().toISOString() };
+  aborted(signal);
+  onProgress({ phase: 'complete', completed: moveCount, total: moveCount, percent: 100 });
+  return report;
 }

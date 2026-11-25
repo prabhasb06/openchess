@@ -16,6 +16,8 @@ import android.view.WindowInsets;
 import android.view.HapticFeedbackConstants;
 import android.webkit.*;
 import android.widget.*;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -31,10 +33,11 @@ public class MainActivity extends Activity {
   private SharedPreferences config;
   private OfflineStockfish offlineEngine;
   private final ExecutorService workers = Executors.newFixedThreadPool(3);
-  private final ConcurrentHashMap<String, HttpURLConnection> connections = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, Socket> connections = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<String, AtomicBoolean> requests = new ConcurrentHashMap<>();
   private ValueCallback<Uri[]> fileCallback;
   private String pendingExport;
+  private Runnable unregisterBack = () -> {};
 
   @Override public void onCreate(Bundle state) {
     super.onCreate(state);
@@ -47,7 +50,7 @@ public class MainActivity extends Activity {
     frame.addView(web, new FrameLayout.LayoutParams(
         FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      getWindow().setDecorFitsSystemWindows(false);
+      if (Build.VERSION.SDK_INT < 35) enableLegacyEdgeToEdge();
       frame.setOnApplyWindowInsetsListener((view, insets) -> {
         android.graphics.Insets usable = insets.getInsets(
             WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
@@ -56,6 +59,8 @@ public class MainActivity extends Activity {
       });
     }
     setContentView(frame);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+      unregisterBack = PredictiveBack.register(this);
     WebSettings settings = web.getSettings();
     settings.setJavaScriptEnabled(true);
     settings.setDomStorageEnabled(true);
@@ -108,6 +113,11 @@ public class MainActivity extends Activity {
     if (state == null || web.restoreState(state) == null) web.loadUrl("https://" + ORIGIN + "/android.html#home");
   }
 
+  @SuppressWarnings("deprecation") // Android 11–14 opt-in. Target SDK 35 enforces this on newer Android.
+  private void enableLegacyEdgeToEdge() {
+    getWindow().setDecorFitsSystemWindows(false);
+  }
+
   private WebResourceResponse response(int code, String text) {
     return new WebResourceResponse("text/plain", "UTF-8", code, code == 404 ? "Not Found" : "Forbidden", Collections.emptyMap(), new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));
   }
@@ -122,21 +132,7 @@ public class MainActivity extends Activity {
     return offlineEngine.available() && !config.getBoolean("useComputer", false);
   }
   static String validateServer(String input) {
-    if (input.trim().isEmpty()) return "";
-    String value = input.trim();
-    if (!value.startsWith("http://")) value = "http://" + value;
-    try {
-      URI uri = new URI(value);
-      if (!"http".equals(uri.getScheme()) || uri.getUserInfo() != null || uri.getQuery() != null || uri.getFragment() != null || !(uri.getPath().isEmpty() || uri.getPath().equals("/"))) throw new Exception();
-      String[] parts = uri.getHost().split("\\.");
-      if (parts.length != 4) throw new Exception();
-      int[] a = new int[4];
-      for (int i = 0; i < 4; i++) { if (!parts[i].matches("[0-9]{1,3}")) throw new Exception(); a[i] = Integer.parseInt(parts[i]); if (a[i] > 255) throw new Exception(); }
-      if (!(a[0] == 10 || (a[0] == 172 && a[1] >= 16 && a[1] <= 31) || (a[0] == 192 && a[1] == 168))) throw new Exception();
-      int port = uri.getPort() == -1 ? 3002 : uri.getPort();
-      if (port < 1024 || port > 65535) throw new Exception();
-      return "http://" + a[0] + "." + a[1] + "." + a[2] + "." + a[3] + ":" + port;
-    } catch (Exception e) { throw new IllegalArgumentException("Use your computer's private IPv4 address and port, for example 192.168.1.20:3002."); }
+    return LanEngineConnection.validateServer(input);
   }
 
   private final class Bridge {
@@ -166,15 +162,14 @@ public class MainActivity extends Activity {
       AtomicBoolean cancelled = requests.get(id);
       if (cancelled == null) return;
       cancelled.set(true);
-      HttpURLConnection connection = connections.remove(id);
-      if (connection != null) new Thread(connection::disconnect, "cancel-engine").start();
+      Socket connection = connections.remove(id);
+      if (connection != null) closeConnection(connection);
     }
     @JavascriptInterface public void request(String id, String path, String method, String body) {
       if (!(path.equals("/api/health") && method.equals("GET") || path.equals("/api/engine") && method.equals("POST")) || body.length() > 1048576) { reply(id, 400, error("Invalid mobile engine request")); return; }
       AtomicBoolean cancelled = new AtomicBoolean();
       if (requests.putIfAbsent(id, cancelled) != null) return;
       workers.execute(() -> {
-        HttpURLConnection connection = null;
         try {
           if (cancelled.get()) return;
           if (usesOnDeviceEngine()) {
@@ -192,33 +187,18 @@ public class MainActivity extends Activity {
           }
           String server = validateServer(config.getString("server", ""));
           if (server.isEmpty()) { reply(id, 503, error("Connect your computer in Mobile engine settings to use Stockfish. Local play, puzzles and lessons work offline.")); return; }
-          connection = (HttpURLConnection) new URL(server + path).openConnection();
-          connections.put(id, connection);
-          if (cancelled.get()) return;
-          connection.setInstanceFollowRedirects(false);
-          connection.setConnectTimeout(7000);
-          connection.setReadTimeout(120000);
-          connection.setRequestMethod(method);
-          connection.setRequestProperty("X-Chess-Token", config.getString("token", ""));
-          if (method.equals("POST")) {
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type", "application/json");
-            try (OutputStream out = connection.getOutputStream()) { out.write(body.getBytes(StandardCharsets.UTF_8)); }
+          try (Socket connection = new Socket(Proxy.NO_PROXY)) {
+            connections.put(id, connection);
+            if (cancelled.get()) return;
+            LanEngineConnection.Response result = LanEngineConnection.exchange(
+                connection, server, path, method, body, config.getString("token", ""));
+            if (!cancelled.get()) reply(id, result.status(), result.body());
           }
-          int status = connection.getResponseCode();
-          InputStream stream = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
-          ByteArrayOutputStream output = new ByteArrayOutputStream();
-          if (stream != null) try (InputStream input = stream) {
-            byte[] buffer = new byte[8192]; int count;
-            while ((count = input.read(buffer)) != -1) { output.write(buffer, 0, count); if (output.size() > 4194304) throw new IOException("Engine response too large"); }
-          }
-          if (!cancelled.get()) reply(id, status >= 200 && status <= 599 ? status : 502, output.toString("UTF-8"));
         } catch (Exception e) {
           if (!cancelled.get()) reply(id, 503, error("The engine could not complete the request. Check Mobile engine settings and try again."));
         } finally {
           connections.remove(id);
           requests.remove(id, cancelled);
-          if (connection != null) connection.disconnect();
         }
       });
     }
@@ -285,7 +265,21 @@ public class MainActivity extends Activity {
       }
     }
   }
-  @Override public void onBackPressed() {
+  @Override @SuppressWarnings("deprecation") // Android 8–12L delivers Back through this callback.
+  public void onBackPressed() {
+    handleBack();
+  }
+
+  private static final class PredictiveBack {
+    static Runnable register(MainActivity activity) {
+      OnBackInvokedDispatcher dispatcher = activity.getOnBackInvokedDispatcher();
+      OnBackInvokedCallback callback = activity::handleBack;
+      dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback);
+      return () -> dispatcher.unregisterOnBackInvokedCallback(callback);
+    }
+  }
+
+  private void handleBack() {
     web.evaluateJavascript("(function(){ if(typeof window.__chessNativeBack==='function') return window.__chessNativeBack() ? 'handled' : 'exit'; return 'history'; })()", result -> {
       if (isDestroyed() || "\"handled\"".equals(result)) return;
       if ("\"exit\"".equals(result)) { finish(); return; }
@@ -295,5 +289,17 @@ public class MainActivity extends Activity {
   @Override protected void onSaveInstanceState(Bundle state) { web.saveState(state); super.onSaveInstanceState(state); }
   @Override protected void onPause() { web.onPause(); super.onPause(); }
   @Override protected void onResume() { super.onResume(); web.onResume(); }
-  @Override protected void onDestroy() { offlineEngine.close(); for (HttpURLConnection c : connections.values()) c.disconnect(); workers.shutdownNow(); web.removeJavascriptInterface("ChessLocalAndroid"); web.destroy(); super.onDestroy(); }
+  private static void closeConnection(Socket socket) {
+    try { socket.close(); } catch (IOException ignored) {}
+  }
+
+  @Override protected void onDestroy() {
+    unregisterBack.run();
+    offlineEngine.close();
+    for (Socket socket : connections.values()) closeConnection(socket);
+    workers.shutdownNow();
+    web.removeJavascriptInterface("ChessLocalAndroid");
+    web.destroy();
+    super.onDestroy();
+  }
 }

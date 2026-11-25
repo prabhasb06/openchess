@@ -24,9 +24,11 @@ npm ci
 npm run build:apk
 ```
 
-The resulting APK is `downloads/openchess.apk`. It includes the engine and works offline. A first build creates a local development key. For an update to an existing installation, use the original signing key and provide `OPENCHESS_SIGNING_KEY`, `OPENCHESS_SIGNING_ALIAS`, and `OPENCHESS_SIGNING_PASSWORD` in your local environment.
+The default APK is `downloads/openchess.apk`, package `local.chess.openchess`, signed with a local development key. For an in-place update to Chess Local, set `OPENCHESS_SIGNING_KEY`, `OPENCHESS_SIGNING_ALIAS`, and `OPENCHESS_SIGNING_PASSWORD` in your local environment. Build the same Vite bundle and run `python android/build.py --release`. The release command writes `downloads/chess-local.apk` with package `local.chess.app` and verifies the original signing certificate before publishing the file locally. Version 2.6.6 uses Android version code 18.
 
-For an x86-64 emulator, keep the same verified Stockfish archive at `android/engine/stockfish-android-armv8.tar`. Set `OPENCHESS_NDK` to your installed NDK r30 and run `python android/build_emulator_engine.py`, then `python android/build.py --emulator` after building the web bundle with `npx vite build --mode apk`.
+For an x86-64 emulator, keep the same verified Stockfish archive at `android/engine/stockfish-android-armv8.tar`. Set `OPENCHESS_NDK` to your installed NDK r30 and run `python android/build_emulator_engine.py`, then `python android/build.py --emulator` after building the web bundle with `npx vite build --mode apk`. Use `--application-id local.chess.openchess.smoke` for the isolated emulator tests in [CHECKPOINTS.md](CHECKPOINTS.md).
+
+Stockfish runs on-device by default. Optional PC pairing uses a direct HTTP connection to the private IPv4 address entered in the native settings dialog. The app sends the connection code only to that address and accepts only the engine health and analysis endpoints. Android's standard network stacks enforce a cleartext-deny policy for the app. Use PC pairing on a trusted private network.
 
 ## Tests and licensing
 

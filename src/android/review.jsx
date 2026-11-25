@@ -31,20 +31,26 @@ import "./review.css";
 const CACHE = "chess-local-reviews-v1",
   SETTINGS = "chess-local-mobile-review-settings";
 const icons = {
+  Brilliant: "!!",
+  Great: "!",
   Best: "★",
   Excellent: "✓",
   Good: "✓",
   Inaccuracy: "?!",
   Mistake: "?",
+  Miss: "×",
   Blunder: "??",
   Forced: "•",
 };
 const colors = {
+  Brilliant: "#5ce0d1",
+  Great: "#91c9ff",
   Best: "#81b64c",
   Excellent: "#81b64c",
   Good: "#95b776",
   Inaccuracy: "#f7c631",
   Mistake: "#ffa459",
+  Miss: "#ff9a89",
   Blunder: "#fa412d",
   Forced: "#999",
 };
@@ -61,7 +67,7 @@ const write = (key, value) => {
   } catch {}
 };
 const isKey = (m) =>
-  ["Inaccuracy", "Mistake", "Blunder"].includes(m.classification);
+  ["Brilliant", "Great", "Inaccuracy", "Mistake", "Miss", "Blunder"].includes(m.classification);
 const score = (e) =>
   !e
     ? "—"
@@ -90,7 +96,7 @@ export function MobileReview({
     [report, setReport] = useState(null);
   const [status, setStatus] = useState("idle"),
     [error, setError] = useState(""),
-    [progress, setProgress] = useState({ completed: 0, total: 1 });
+    [progress, setProgress] = useState({ phase: "positions", completed: 0, total: 1, percent: 0 });
   const [screen, setScreen] = useState("highlights"),
     [ply, setPly] = useState(0),
     [flipped, setFlipped] = useState(false),
@@ -162,10 +168,6 @@ export function MobileReview({
     [];
   const white = data?.headers?.White || "White",
     black = data?.headers?.Black || "Black";
-  const pct = Math.min(
-    100,
-    Math.round((progress.completed / Math.max(1, progress.total)) * 100),
-  );
   useEffect(() => write(SETTINGS, settings), [settings]);
   function clearPosition() {
     setRetry(false);
@@ -246,7 +248,7 @@ export function MobileReview({
       return;
     }
     setStatus("running");
-    setProgress({ completed: 0, total: parsedGame.moves.length + 1 });
+    setProgress({ phase: "positions", completed: 0, total: parsedGame.positions.length, percent: 0 });
     try {
       const next = await runGameReview(parsedGame.pgn, {
         signal: controller.signal,
@@ -523,9 +525,10 @@ export function MobileReview({
           <p>Stockfish finds stronger moves and the moments that mattered.</p>
           {status === "running" ? (
             <>
-              <progress aria-label="Review progress" max="100" value={pct} />
+              <progress aria-label="Review progress" max="100" value={progress.percent} />
               <p>
-                {progress.completed} of {progress.total} positions · {pct}%
+                {progress.phase === "positions" ? "Analyzing positions" : "Checking moves"}
+                {" · "}{progress.completed} of {progress.total}
               </p>
               <button className="am-review-secondary" onClick={cancel}>
                 Cancel review
@@ -648,7 +651,7 @@ export function MobileReview({
               >
                 Start Review
               </button>
-              <p>{keys.length} moments to improve</p>
+              <p>{keys.length} key moments</p>
             </div>
           ) : (
             <>

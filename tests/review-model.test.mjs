@@ -39,7 +39,10 @@ test('full real Stockfish review detects fools mate and a losing move', async ()
   assert.match(report.moves[3].explanation, /checkmate/);
   assert.ok(report.accuracy.b > report.accuracy.w);
   assert.equal(Object.values(report.counts.w).reduce((a,b)=>a+b,0), 2);
-  assert.equal(progress.at(-1).completed, 5);
+  assert.deepEqual(progress.findLast(step => step.phase === 'positions'), { phase: 'positions', completed: 5, total: 5, percent: 75 });
+  assert.deepEqual(progress.at(-2), { phase: 'moves', completed: 4, total: 4, percent: 99 });
+  assert.deepEqual(progress.at(-1), { phase: 'complete', completed: 4, total: 4, percent: 100 });
+  assert(progress.every((step, i) => !i || step.percent >= progress[i - 1].percent));
 });
 
 test('repetition is evaluated as a draw without an engine search of the final FEN', async () => {
