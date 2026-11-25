@@ -103,6 +103,7 @@ export function useResultAnalysis(pgn, enabled) {
     setProgress({ phase: "positions", completed: 0, total: parsed.positions.length, percent: 0 });
     runGameReview(parsed.pgn, {
       signal: abort.signal,
+      reuse: true,
       onProgress: (value) => {
         if (id === generation.current) setProgress(value);
       },

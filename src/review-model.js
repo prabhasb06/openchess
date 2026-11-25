@@ -48,11 +48,14 @@ const pieceValue = {p: 1, n: 3, b: 3, r: 5, q: 9, k: 0};
 const pieceName = {p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen'};
 const moveUci = move => move.from + move.to + (move.promotion || '');
 
-export function sacrificeCapture(move, variant) {
+export function sacrificeCapture(move, variant, board) {
   if (move.castle || move.promotion || pieceValue[move.piece] < 3) return null;
-  const reply = createRulesGame(move.after, variant).moves({ verbose: true })
+  if (pieceValue[move.piece] - (pieceValue[move.captured] || 0) < 2) return null;
+  const position = board ?? createRulesGame(move.after, variant);
+  if (!position.attackers(move.to, position.turn()).length) return null;
+  const reply = position.moves({ verbose: true })
     .find(candidate => candidate.to === move.to && candidate.captured === move.piece);
-  return reply && pieceValue[move.piece] - (pieceValue[move.captured] || 0) >= 2 ? reply : null;
+  return reply ?? null;
 }
 
 function sanLine(fen, pv, variant) {
@@ -62,6 +65,14 @@ function sanLine(fen, pv, variant) {
     catch { break; }
   }
   return out;
+}
+
+function verifiesContinuation(result, fen, prefix, variant) {
+  const line = result.lines?.[0];
+  const length = prefix.length + 1;
+  return line?.depth >= 12 && Array.isArray(line.pv) &&
+    prefix.every((move, index) => line.pv[index] === move) &&
+    sanLine(fen, line.pv.slice(0, length), variant).length === length;
 }
 
 function explanation(move, grading, bestSan, after, board) {
@@ -89,24 +100,35 @@ function pause(ms, signal) {
   });
 }
 
-const completedSearches = new Map();
+let searchCaches = new WeakMap();
+if (typeof window !== 'undefined') {
+  window.addEventListener('chess-engine-configured', () => { searchCaches = new WeakMap(); });
+}
 
 export async function runGameReview(pgn, {
   signal, onProgress = () => {}, movetime = 65, request = apiFetch, adaptive = request === apiFetch, reuse = false,
 } = {}) {
   const parsed = parseReviewPgn(pgn), board = createRulesGame(parsed.base, parsed.variant), evaluations = [];
+  let completedSearches;
+  if (reuse) {
+    completedSearches = searchCaches.get(request);
+    if (!completedSearches) {
+      completedSearches = new Map();
+      searchCaches.set(request, completedSearches);
+    }
+  }
   async function search(fen, time, multiPv = 1, rootMove) {
     const options = { fen, variant: parsed.variant, movetime: time, skill: 20, multiPv, purpose: 'review', ...(rootMove && {rootMove}) };
     const key = JSON.stringify(options);
     aborted(signal);
-    if (reuse && completedSearches.has(key)) return completedSearches.get(key);
+    if (completedSearches?.has(key)) return completedSearches.get(key);
     for (let attempt = 0; attempt < 4; attempt++) {
       const response = await request('/api/engine', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal, body: key });
       if (response.status === 429 && attempt < 3) { await pause(400 * (attempt + 1), signal); continue; }
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Stockfish is unavailable. Check your engine connection and retry.');
       if (!data.bestmove || (!Number.isFinite(data.evaluation) && !Number.isFinite(data.mate))) throw new Error('The engine returned an incomplete evaluation. Please retry.');
-      if (reuse) {
+      if (completedSearches) {
         if (completedSearches.size >= 900) completedSearches.delete(completedSearches.keys().next().value);
         completedSearches.set(key, data);
       }
@@ -140,29 +162,43 @@ export async function runGameReview(pgn, {
     const evidence = {};
     if (adaptive && legalCount > 1 && beforeEval.bestmove && afterEval.bestmove) {
       const first = expectedScore(beforeEval, move.color), second = expectedScore(afterEval, move.color);
-      const candidate = sacrificeCapture(move, parsed.variant);
       const loss = first - second;
-      const nearBest = beforeEval.bestmove === moveUci(move) || loss < .09;
+      const played = moveUci(move);
+      const nearBest = beforeEval.bestmove === played || loss < .09;
       const possibleGreat = nearBest && first >= .53 && first < .92;
       const possibleMiss = first >= .76 && second < .68;
       const borderline = [.05, .10, .20].some(bound => Math.abs(loss - bound) < .012);
-      const checkSacrifice = candidate && nearBest && second >= .30;
-      if (checkSacrifice || possibleGreat || possibleMiss || borderline) {
-        beforeEval = await search(move.before, checkSacrifice ? 425 : 105, 2);
-        const other = beforeEval.lines?.find(line => line.pv?.[0] !== moveUci(move));
+      const candidate = nearBest && second >= .30 ? sacrificeCapture(move, parsed.variant, replay) : null;
+      if (candidate || possibleGreat || possibleMiss || borderline) {
+        beforeEval = await search(move.before, candidate ? 425 : 105, 2);
+        const other = beforeEval.lines?.find(line => line.pv?.[0] !== played);
         if (other) evidence.alternative = expectedScore({evaluation: other.score, mate: other.mate}, move.color);
-        if (beforeEval.bestmove !== moveUci(move) || checkSacrifice)
-          afterEval = await search(move.after, checkSacrifice ? 425 : 100);
-        evidence.missedChance = possibleMiss && beforeEval.bestmove !== moveUci(move);
-        if (checkSacrifice && other && expectedScore(beforeEval, move.color) - expectedScore(afterEval, move.color) < .02) {
-          const taken = await search(move.after, 425, 1, moveUci(candidate));
-          if (taken.bestmove === moveUci(candidate) && expectedScore(taken, move.color) >= .45) {
-            const continuation = createRulesGame(move.after, parsed.variant);
-            continuation.move(candidate);
-            const reply = continuation.isGameOver() ? null : await search(continuation.fen(), 320);
-            evidence.sacrifice = !!reply?.bestmove && expectedScore(reply, move.color) >= .45;
+        const best = beforeEval.bestmove === played;
+        const start = expectedScore(beforeEval, move.color);
+        const capture = candidate && evidence.alternative < .90 ? moveUci(candidate) : null;
+
+        if (capture && best && start >= .70 && start - second < .02 &&
+            verifiesContinuation(beforeEval, move.before, [played, capture], parsed.variant)) {
+          evidence.sacrifice = true;
+        } else {
+          if (!best || capture) afterEval = await search(move.after, capture ? 425 : 100);
+          const finish = expectedScore(afterEval, move.color);
+          if (capture && finish >= .40 && start - finish < .02) {
+            const taken = afterEval.bestmove === capture ? afterEval : await search(move.after, 425, 1, capture);
+            const compensation = expectedScore(taken, move.color);
+            if (taken.bestmove === capture && compensation >= .45) {
+              if (compensation >= .60 && verifiesContinuation(taken, move.after, [capture], parsed.variant)) {
+                evidence.sacrifice = true;
+              } else {
+                const continuation = createRulesGame(move.after, parsed.variant);
+                continuation.move(candidate);
+                const reply = continuation.isGameOver() ? null : await search(continuation.fen(), 320);
+                evidence.sacrifice = !!reply?.bestmove && expectedScore(reply, move.color) >= .45;
+              }
+            }
           }
         }
+        evidence.missedChance = possibleMiss && !best;
       }
     }
     aborted(signal);

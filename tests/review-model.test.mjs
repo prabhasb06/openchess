@@ -68,3 +68,59 @@ test('a one-sided game reports no invented accuracy for the other side', async (
   assert.equal(report.accuracy.b, null);
   assert.equal(report.accuracy.w, 100);
 });
+
+test('an interrupted review can reuse its completed searches on retry', async () => {
+  const controller = new AbortController();
+  const searches = [];
+  const pgn = '1. e4 e5 *';
+  const request = async (_, options) => {
+    const search = JSON.parse(options.body);
+    searches.push(search);
+    return { ok: true, json: async () => ({
+      bestmove: search.fen.includes(' b ') ? 'e7e5' : 'e2e4',
+      evaluation: .2,
+    }) };
+  };
+  await assert.rejects(runGameReview(pgn, {
+    request, signal: controller.signal, reuse: true,
+    onProgress: ({completed}) => { if (completed === 1) controller.abort(); },
+  }), {name: 'AbortError'});
+  assert.equal(searches.length, 1);
+
+  const report = await runGameReview(pgn, {request, reuse: true});
+  assert.equal(report.moves.length, 2);
+  assert.equal(searches.length, 3);
+
+  await runGameReview(pgn, {request});
+  assert.equal(searches.length, 6);
+  await runGameReview(pgn, {request: (...args) => request(...args), reuse: true});
+  assert.equal(searches.length, 9);
+});
+
+test('review reuses an evaluated capture and verifies its continuation', async () => {
+  const parsed = parseReviewPgn('[SetUp "1"]\n[FEN "1q3r1k/6pp/4Q2N/8/8/8/8/4K3 w - - 0 1"]\n\n1. Qg8+ *');
+  for (const [response, depth, expectExtra, verifiedBefore] of [
+    ['h6f7', 18, false, false], ['h6f7', 10, true, false], ['e2e4', 18, true, false], ['h6f7', 18, false, true],
+  ]) {
+    const searches = [];
+    const report = await runGameReview(parsed.pgn, {
+      adaptive: true,
+      request: async (_, options) => {
+        const search = JSON.parse(options.body);
+        searches.push(search);
+        const opening = { pv: verifiedBefore ? ['e6g8', 'f8g8', 'h6f7'] : ['e6g8'], mate: 3, depth: 18 };
+        const result = search.fen === parsed.base
+          ? { bestmove: 'e6g8', mate: 3, lines: [opening, { pv: ['e6d7'], score: .4 }] }
+          : search.fen === parsed.positions[1]
+            ? { bestmove: 'f8g8', mate: 2, lines: [{ pv: ['f8g8', response], depth, mate: 2 }] }
+            : { bestmove: 'h6f7', mate: 2 };
+        return { ok: true, json: async () => result };
+      },
+    });
+    assert.equal(report.moves[0].classification, 'Brilliant');
+    const deep = searches.filter(search => search.movetime > 65);
+    assert.deepEqual(deep.map(search => [search.movetime, search.rootMove]), verifiedBefore
+      ? [[425, undefined]]
+      : [[425, undefined], [425, undefined], ...(expectExtra ? [[320, undefined]] : [])]);
+  }
+});

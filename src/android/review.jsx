@@ -252,6 +252,7 @@ export function MobileReview({
     try {
       const next = await runGameReview(parsedGame.pgn, {
         signal: controller.signal,
+        reuse: !fresh,
         onProgress: (p) => {
           if (id === generation.current) setProgress(p);
         },

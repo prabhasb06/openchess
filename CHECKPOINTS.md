@@ -20,6 +20,14 @@ The source checks passed 18 OpenChess tests, 119 Chess Local tests, 42 mobile br
 
 Both builds use Android version code 18. The ARM64 update uses the original Chess Local signing certificate. The x86-64 test build uses the OpenChess development certificate.
 
+## Game Review update 2.6.7
+
+The Android 17 emulator completed the fixed 40-move PGN three times per version after a warm-up game and with the saved report cleared before each trial. Review 2.6.6 took 23.917, 23.342, and 23.082 seconds. Review 2.6.7 took 24.572, 20.308, and 21.311 seconds. The median fell from 23.342 to 21.311 seconds, an 8.7% reduction.
+
+After cancellation, the Android UI reused all six completed Stockfish searches on retry and finished the report. The offline smoke suite covered two-player, bot, and coach games. The extended suite verified the Brilliant queen sacrifice, Chess960 continuations, and all ten move-classification badges. All 20 source tests passed.
+
+The local ARM64 update `downloads/chess-local-2.6.7-offline.apk` uses `local.chess.app`, Android version code 19, and the original Chess Local signing certificate. Its SHA-256 is `c1df99d849647f54da52b3d902c6f6cccb603b1d584c8a50709ad70cbfec3ee2`. Runtime checks ran on the emulator.
+
 ## Run the checks
 
 Launch the debuggable emulator build with the package ID `local.chess.openchess.smoke`. Set `OPENCHESS_TEST_SERIAL` or `OPENCHESS_TEST_PACKAGE` if your emulator uses a different serial or package ID.
@@ -28,6 +36,7 @@ Launch the debuggable emulator build with the package ID `local.chess.openchess.
 npm test
 node tests/android-emulator-smoke.mjs
 node tests/android-emulator-smoke.mjs --extended
+node tests/android-emulator-smoke.mjs --benchmark-review
 node tests/android-emulator-smoke.mjs --pgn-files
 node tests/android-emulator-smoke.mjs --lan
 ```
