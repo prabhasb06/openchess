@@ -24,7 +24,7 @@ npm ci
 npm run build:apk
 ```
 
-The default APK is `downloads/openchess.apk`, package `local.chess.openchess`, signed with a local development key. For an in-place update to Chess Local, set `OPENCHESS_SIGNING_KEY`, `OPENCHESS_SIGNING_ALIAS`, and `OPENCHESS_SIGNING_PASSWORD` in your local environment. Build the same Vite bundle and run `python android/build.py --release`. The release command writes `downloads/chess-local.apk` with package `local.chess.app` and verifies the original signing certificate before publishing the file locally. Version 2.6.9 uses Android version code 21.
+The default APK is `downloads/openchess.apk`, package `local.chess.openchess`, signed with a local development key. For an in-place update to Chess Local, set `OPENCHESS_SIGNING_KEY`, `OPENCHESS_SIGNING_ALIAS`, and `OPENCHESS_SIGNING_PASSWORD` in your local environment. Build the same Vite bundle and run `python android/build.py --release`. The release command writes `downloads/chess-local.apk` with package `local.chess.app` and verifies the original signing certificate before publishing the file locally. Version 2.6.10 uses Android version code 22.
 
 For an x86-64 emulator, keep the same verified Stockfish archive at `android/engine/stockfish-android-armv8.tar`. Set `OPENCHESS_NDK` to your installed NDK r30 and run `python android/build_emulator_engine.py`, then `python android/build.py --emulator` after building the web bundle with `npx vite build --mode apk`. Use `--application-id local.chess.openchess.smoke` for the isolated emulator tests in [CHECKPOINTS.md](CHECKPOINTS.md).
 

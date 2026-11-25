@@ -55,6 +55,12 @@ All 25 source tests passed. The Android emulator received the slider's minimum a
 
 The local ARM64 update `downloads/chess-local-2.6.9-offline.apk` uses `local.chess.app`, Android version code 21, and the original Chess Local signing certificate. Its SHA-256 is `85f6cf143f02f778ded816f353b84c73f85dd6c5356890b45c824137087b6865`.
 
+## Coach review continuity in 2.6.10
+
+Game Review names the coach stored in the game's PGN and uses the current local selection if the game has no recognized coach. The emulator verified that a Vale game still shows Vale from the saved-games list after switching the current choice to Ember. An imported PGN with an unfamiliar coach showed Ember. The in-place update preserved saved data, and all 25 source tests and extended emulator checks passed.
+
+The local ARM64 update `downloads/chess-local-2.6.10-offline.apk` uses `local.chess.app`, Android version code 22, and the original Chess Local signing certificate. Its SHA-256 is `358250267076637501e880f0b2460a8875ba8cb6e44c54b3bb975e87a90617d3`. Runtime checks ran on the Android emulator.
+
 ## Run the checks
 
 Launch the debuggable emulator build with the package ID `local.chess.openchess.smoke`. Set `OPENCHESS_TEST_SERIAL` or `OPENCHESS_TEST_PACKAGE` if your emulator uses a different serial or package ID.
@@ -65,6 +71,7 @@ node tests/android-emulator-smoke.mjs
 node tests/android-emulator-smoke.mjs --extended
 node tests/android-emulator-smoke.mjs --benchmark-review
 node tests/android-emulator-smoke.mjs --stockfish-slider
+node tests/android-emulator-smoke.mjs --coach-review
 node tests/android-emulator-smoke.mjs --pgn-files
 node tests/android-emulator-smoke.mjs --lan
 ```

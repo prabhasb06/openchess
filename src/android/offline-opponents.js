@@ -1,6 +1,8 @@
 import { createRulesGame } from "../chess-rules.js";
 import { expectedScore } from "../review-model.js";
 
+export const localCoachNames = Object.freeze(["Sage", "Vale", "Ember"]);
+
 const value = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 const piece = { p: "pawn", n: "knight", b: "bishop", r: "rook", q: "queen", k: "king" };
 const uci = move => move.from + move.to + (move.promotion || "");
@@ -101,7 +103,7 @@ export function coachFeedback(move, before, reply, variant) {
   }
 }
 
-export function coachSetup(ui, { coaches, saved, initial, onResume, onPlay }) {
+export function coachSetup(ui, { saved, initial, onResume, onPlay }) {
   const select = (field, title, options, selected) => ui.jsxs("label", {
     children: [title, ui.jsx("select", {
       name: field, defaultValue: selected,
@@ -117,7 +119,7 @@ export function coachSetup(ui, { coaches, saved, initial, onResume, onPlay }) {
     },
     children: [
       ui.jsx("h2", { children: "Play Against Coach" }),
-      select("coach", "Coach", coaches.map(name => [name, name]), initial.name),
+      select("coach", "Coach", localCoachNames.map(name => [name, name]), initial.name),
       select("strength", "Playing strength", [[400, "Beginner · 400"], [850, "Developing · 850"], [1300, "Intermediate · 1300"], [1750, "Advanced · 1750"], [2250, "Expert · 2250"]], initial.rating),
       select("color", "Play as", [["w", "White"], ["b", "Black"], ["random", "Random"]], initial.color),
       saved && ui.jsx("button", { type: "button", onClick: onResume, children: "Continue Coach Game" }),

@@ -25,6 +25,7 @@ import {
   REVIEW_CLASSES,
 } from "../review-model.js";
 import { localCoach as coach } from "./local-art";
+import { localCoachNames } from "./offline-opponents";
 import "./chrome.css";
 import "./review.css";
 
@@ -87,6 +88,7 @@ const withReviewMoveFlags = (move) => ({ ...move,
 export function MobileReview({
   pgn = "",
   prefs = {},
+  selectedCoach,
   onBack,
   onAnalyze,
   onPgnChange,
@@ -168,6 +170,9 @@ export function MobileReview({
     [];
   const white = data?.headers?.White || "White",
     black = data?.headers?.Black || "Black";
+  const reviewCoach = [parsed?.headers?.Coach, selectedCoach].find((name) =>
+    localCoachNames.includes(name),
+  );
   useEffect(() => write(SETTINGS, settings), [settings]);
   function clearPosition() {
     setRetry(false);
@@ -803,7 +808,10 @@ export function MobileReview({
                 </button>
                 <div>
                   {settings.showCoach && (
-                    <img src={coach} alt="Coach illustration" />
+                    <img
+                      src={coach}
+                      alt={reviewCoach ? `${reviewCoach}, coach` : "Coach illustration"}
+                    />
                   )}
                   <article>
                     <h2 style={{ color: colors[current?.classification] }}>
@@ -818,10 +826,16 @@ export function MobileReview({
                             current?.explanation ||
                             "Use Next to explore the key moments in your game."}
                         </p>
-                        {current && (
+                        {(reviewCoach || current) && (
                           <small>
-                            {score(current.beforeEval)} →{" "}
-                            {score(current.afterEval)} · White’s perspective
+                            {reviewCoach && <span>Coach {reviewCoach}</span>}
+                            {reviewCoach && current && " · "}
+                            {current && (
+                              <>
+                                {score(current.beforeEval)} →{" "}
+                                {score(current.afterEval)} · White’s perspective
+                              </>
+                            )}
                           </small>
                         )}
                         {retry && (

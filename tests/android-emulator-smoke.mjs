@@ -301,8 +301,39 @@ async function checkCoach() {
   await button("Resign").last().click();
   await button("Game Review").last().click();
   await page.locator('[data-mobile-review-status="complete"]').waitFor({timeout:60000});
-  assert.match((await read("chess-local-reviews-v1"))[0].pgn, /\[Coach "Vale"\]/);
+  assert.match(await read("chess-local-review-pgn"), /\[Coach "Vale"\]/);
+  await button("Review").click();
+  const coach = name => page.locator(".am-review-coach").getByText("Coach " + name, {exact:true});
+  await coach("Vale").waitFor();
+  const setup = await read("chess-local-mobile-coach-setup");
+  try {
+    await page.evaluate(setup => {
+      localStorage.setItem("chess-local-mobile-coach-setup", JSON.stringify({...setup, name:"Ember"}));
+    }, setup);
+    await goHome();
+    await button("More").click();
+    await button("Stats").click();
+    await settle("stats");
+    const saved = page.locator(".am-history-game").filter({ hasText: /vs\. Vale/ }).first();
+    await saved.getByRole("button", {name:"Game Review", exact:true}).click();
+    await page.locator('[data-mobile-review-status="complete"]').waitFor({timeout:60000});
+    await button("Review").click();
+    await coach("Vale").waitFor();
+
+    await button("New PGN").click();
+    await page.locator("#mobile-review-pgn").fill('[Coach "Unlisted"]\n\n1. d4 d5 *');
+    await button("Start Review").click();
+    await page.locator('[data-mobile-review-status="complete"]').waitFor({timeout:60000});
+    await button("Review").click();
+    await coach("Ember").waitFor();
+    assert.equal(await page.locator(".am-review-coach").getByText("Coach Unlisted", {exact:true}).count(), 0);
+  } finally {
+    await page.evaluate(setup => {
+      localStorage.setItem("chess-local-mobile-coach-setup", JSON.stringify(setup));
+    }, setup);
+  }
   console.log("Coach selection, two-stage hints, feedback, Back, resume, and review passed");
+  console.log("Saved reviews retain their coach. Imported games with unknown coaches use the selected local coach.");
 }
 async function selectBot(opponent) {
   await goHome();
@@ -639,6 +670,9 @@ try {
     assert.deepEqual(errors, []);
   } else if (process.argv.includes("--stockfish-slider")) {
     await checkStockfishSlider();
+    assert.deepEqual(errors, []);
+  } else if (process.argv.includes("--coach-review")) {
+    await checkCoach();
     assert.deepEqual(errors, []);
   } else if (process.argv.includes("--pgn-files")) {
     await checkPgnFiles();

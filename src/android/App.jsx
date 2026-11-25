@@ -592,6 +592,7 @@ export function MobileApp() {
         <MobileReview
           pgn={reviewPgn}
           prefs={mobilePrefs}
+          selectedCoach={read("mobile-coach-setup", null)?.name}
           onBack={returnFromReview}
           onAnalyze={analyze}
           onPgnChange={(p) => {
@@ -783,7 +784,6 @@ export function MobileApp() {
               />
             )}
             {modal.type === "coach" && coachSetup({ jsx, jsxs }, {
-              coaches: ["Sage", "Vale", "Ember"],
               initial: read("mobile-coach-setup", { name: "Sage", rating: 850, color: "w" }),
               saved: Boolean(sessions.coach?.started && !sessions.coach?.result),
               onResume: () => {
