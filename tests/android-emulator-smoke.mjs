@@ -485,6 +485,12 @@ async function checkRotationAndTrainingBack() {
   console.log("Android Back closed the Learn sheet and returned from Openings. Rotation preserved reachable controls.");
 }
 
+function stockfishPid() {
+  return shell("ps", "-A", "-o", "PID,PPID,NAME").split(/\r?\n/)
+    .map(line => line.trim().split(/\s+/))
+    .find(([, parent, name]) => parent === pid && name === "libstockfish.so")?.[0];
+}
+
 async function checkWarmCancellation() {
   await goHome();
   await page.evaluate(() => localStorage.removeItem("chess-local-mobile-analysis-v1"));
@@ -501,9 +507,6 @@ async function checkWarmCancellation() {
   await button("Hint").click();
   await page.waitForFunction(() => !!document.querySelector(".am-game-pv")?.textContent.trim());
 
-  const stockfishPid = () => shell("ps", "-A", "-o", "PID,PPID,NAME").split(/\r?\n/)
-    .map(line => line.trim().split(/\s+/))
-    .find(([, parent, name]) => parent === pid && name === "libstockfish.so")?.[0];
   const started = stockfishPid();
   assert(started, "No Stockfish child running after Analysis");
   const positions = createRulesGame();
@@ -639,6 +642,86 @@ async function benchmarkReview() {
   console.log(`Median of three uncached reviews: ${times.sort((a, b) => a - b)[1]} ms`);
 }
 
+async function checkReviewResume() {
+  const warmup = createRulesGame();
+  warmup.loadPgn("1. f3 e5 2. g4 Qh4# 0-1");
+  await reviewGameWithEngine(warmup);
+  const engine = stockfishPid();
+  assert(engine, "Game Review did not start Stockfish");
+  await button("New PGN").click();
+
+  const pgn = '[Event "Review cancellation fixture"]\n\n' +
+    "1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 c6 5. e3 Nbd7 6. Bd3 dxc4 7. Bxc4 Be7 8. Nf3 O-O *";
+  await page.evaluate(() => {
+    const cacheKey = "chess-local-reviews-v1";
+    const saved = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+    localStorage.setItem(cacheKey, JSON.stringify(saved.filter(report =>
+      !report.pgn.includes('[Event "Review cancellation fixture"]'))));
+
+    const bridge = window.ChessLocalAndroid;
+    const descriptor = Object.getOwnPropertyDescriptor(window, "ChessLocalAndroid");
+    const respond = window.__chessNativeResponse;
+    const pending = new Map();
+    const completed = new Set();
+    const cancelled = new Set();
+    const requested = [];
+    window.openChessReviewProbe = { pending, completed, cancelled, requested };
+    window.__chessNativeResponse = (id, reply) => {
+      if (pending.has(id) && reply.status === 200) completed.add(pending.get(id));
+      pending.delete(id);
+      respond(id, reply);
+    };
+    const monitored = new Proxy(bridge, {
+      get(target, name) {
+        if (name === "request") {
+          return (id, path, method, body) => {
+            if (path === "/api/engine") {
+              pending.set(id, body);
+              requested.push(body);
+            }
+            target.request(id, path, method, body);
+          };
+        }
+        if (name === "cancel") {
+          return id => {
+            if (pending.delete(id)) cancelled.add(id);
+            target.cancel(id);
+          };
+        }
+        const member = target[name];
+        return typeof member === "function" ? member.bind(target) : member;
+      },
+    });
+    Object.defineProperty(window, "ChessLocalAndroid", { ...descriptor, value: monitored });
+  });
+  try {
+    await page.locator("#mobile-review-pgn").fill(pgn);
+    await button("Start Review").click();
+    await page.waitForFunction(() => {
+      const { completed, pending } = window.openChessReviewProbe;
+      return completed.size >= 5 && pending.size > 0;
+    });
+    await button("Cancel review").click();
+    await page.getByRole("heading", { name: "Review paused", exact: true }).waitFor();
+    const before = await page.evaluate(() => {
+      const { completed, cancelled, pending, requested } = window.openChessReviewProbe;
+      return { completed: [...completed], cancelled: cancelled.size, pending: pending.size, sent: requested.length };
+    });
+    assert(before.cancelled > 0, "A review search should be cancelled");
+    assert.equal(before.pending, 0);
+
+    await button("Start Review").click();
+    await page.locator('[data-mobile-review-status="complete"]').waitFor({ timeout: 60000 });
+    const retry = await page.evaluate(start => window.openChessReviewProbe.requested.slice(start), before.sent);
+    assert(retry.length > 0, "Resuming should finish the remaining searches");
+    assert.deepEqual(retry.filter(payload => before.completed.includes(payload)), []);
+    assert.equal(stockfishPid(), engine);
+    console.log(`Game Review cancelled ${before.cancelled} search requests, reused ${before.completed.length} completed requests, and kept Stockfish PID ${engine} warm`);
+  } finally {
+    await page.reload({ waitUntil: "domcontentloaded" });
+  }
+}
+
 async function checkNativeEngineReviews() {
   const game = createRulesGame("1q3r1k/6pp/4Q2N/8/8/8/8/4K3 w - - 0 1");
   game.move("Qg8+");
@@ -667,6 +750,9 @@ try {
     await verifyUpgradeState(saveState);
   } else if (process.argv.includes("--benchmark-review")) {
     await benchmarkReview();
+    assert.deepEqual(errors, []);
+  } else if (process.argv.includes("--review-resume")) {
+    await checkReviewResume();
     assert.deepEqual(errors, []);
   } else if (process.argv.includes("--stockfish-slider")) {
     await checkStockfishSlider();

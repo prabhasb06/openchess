@@ -75,6 +75,24 @@ Signal and Vector each won three games with each color. Apex won one game as Whi
 
 To repeat the benchmark with the existing Stockfish executable, run `node tests/bot-match-benchmark.mjs android/build/bot-match-2.6.10.pgn`.
 
+## Published 2.6.10 release verification
+
+The signed ARM64 APK rebuilt from commit `6c5f5b97d481120b0baeb2a5edee3cc75170750a` matched the APK downloaded from GitHub, the release digest, and the downloadable `SHA256SUMS.txt`. Use an LF checkout when reproducing this APK on Windows. Vite's generated Android HTML and the packaged Stockfish license both changed when Git converted their source files to CRLF.
+
+| Release check | Result |
+| --- | --- |
+| Application | `local.chess.app`, 2.6.10, version code 22 |
+| APK SHA-256 | `358250267076637501e880f0b2460a8875ba8cb6e44c54b3bb975e87a90617d3` |
+| Original signing certificate SHA-256 | `e17f8270c7a1b2b63ab2efc8365476df63ede994a63a37bcf16d77e699519cdc` |
+| APK signature and alignment | Android signature schemes v2 and v3 verified. 16 KB alignment passed. |
+| Shared application payload | 39 matching web assets and DEX entries in the ARM64 and x86-64 APKs. |
+
+All 25 source tests passed at the published commit. A clean Android 17 emulator install in airplane mode covered guest onboarding, two-player games, beginner bots from both colors, the advanced bot, coach feedback and hints, Back and resume, training, rotation, and audio. Game Review rendered all ten badges, classified the sound queen sacrifice `Qg8+` as Brilliant, and kept the Chess960 continuations legal. The 2.6.9-to-2.6.10 signed upgrade preserved the saved test profile after restart. Native PGN export and import round-tripped a game after each picker was cancelled and reopened. In a separate network-enabled check, LAN pairing rejected a public address and completed health and engine requests to a private address.
+
+Three uncached Game Reviews of the same 40-move game took 16.474, 13.862, and 14.940 seconds. The 14.940-second median was 36.0% lower than the 2.6.6 baseline of 23.342 seconds. The review cancellation check cancelled two outstanding searches, reused eight completed searches on retry, and finished with the same Stockfish process.
+
+Android runtime verification ran on the emulator. The Samsung was unavailable through ADB during these checks.
+
 ## Run the checks
 
 Launch the debuggable emulator build with the package ID `local.chess.openchess.smoke`. Set `OPENCHESS_TEST_SERIAL` or `OPENCHESS_TEST_PACKAGE` if your emulator uses a different serial or package ID.
@@ -84,6 +102,7 @@ npm test
 node tests/android-emulator-smoke.mjs
 node tests/android-emulator-smoke.mjs --extended
 node tests/android-emulator-smoke.mjs --benchmark-review
+node tests/android-emulator-smoke.mjs --review-resume
 node tests/android-emulator-smoke.mjs --stockfish-slider
 node tests/android-emulator-smoke.mjs --coach-review
 node tests/android-emulator-smoke.mjs --pgn-files
