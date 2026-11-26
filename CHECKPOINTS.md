@@ -61,6 +61,20 @@ Game Review names the coach stored in the game's PGN and uses the current local 
 
 The local ARM64 update `downloads/chess-local-2.6.10-offline.apk` uses `local.chess.app`, Android version code 22, and the original Chess Local signing certificate. Its SHA-256 is `358250267076637501e880f0b2460a8875ba8cb6e44c54b3bb975e87a90617d3`. Runtime checks ran on the Android emulator.
 
+## Complete bot-game benchmark
+
+The 2.6.10 bot policies played 18 games using Windows Stockfish 18 and the app's search settings. Each pairing played the Italian Game, Sicilian Defense, and Queen's Gambit with colors reversed. The sampler used fixed seeds per bot and opening. Timed engine searches can vary across runs.
+
+| Pairing | Higher-rated wins | Draws | Lower-rated wins |
+| --- | --- | --- | --- |
+| Signal vs. Pebble | 6 | 0 | 0 |
+| Vector vs. Signal | 6 | 0 | 0 |
+| Apex vs. Vector | 1 | 5 | 0 |
+
+Signal and Vector each won three games with each color. Apex won one game as White. All 18 PGNs replayed legally. Thirteen games ended in checkmate and five in legal draws. These outcomes describe the benchmark sample. Displayed ratings remain approximate.
+
+To repeat the benchmark with the existing Stockfish executable, run `node tests/bot-match-benchmark.mjs android/build/bot-match-2.6.10.pgn`.
+
 ## Run the checks
 
 Launch the debuggable emulator build with the package ID `local.chess.openchess.smoke`. Set `OPENCHESS_TEST_SERIAL` or `OPENCHESS_TEST_PACKAGE` if your emulator uses a different serial or package ID.
